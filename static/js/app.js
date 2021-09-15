@@ -139,6 +139,7 @@ function createDownloadLink(blob) {
     var submit = document.createElement('a');
     submit.href="#";
     submit.innerHTML = "Submit";
+    submit.setAttribute("name", "submitButton");
     submit.addEventListener("click", function(event){
           var xhr=new XMLHttpRequest();
           xhr.onload=function(e) {
@@ -148,7 +149,7 @@ function createDownloadLink(blob) {
           };
           var fd=new FormData();
           fd.append("audio_data",blob);
-          xhr.open("POST","/",true);
+          xhr.open("POST","/audio",true);
           xhr.send(fd);
     })
     li.appendChild(document.createTextNode (" "))//add a space in between

@@ -5,6 +5,7 @@ from flask import request
 from flask import render_template
 import os
 import tts
+import translation
 
 app = Flask(__name__)
 
@@ -28,9 +29,25 @@ def index():
 
 @app.route('/background_process_test')
 def background_process_test():
-    tts.readQuestion()
+    tts.readQuestion1()
     return ("nothing")
 
+@app.route('/lt_process')
+def translate():
+    translation.translate()
+    return ("nothing")
+
+
+@app.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
+        if request.method == "POST":
+           # getting input with name = fname in HTML form
+           question1 = request.form.get("q1")
+           # getting input with name = lname in HTML form
+           question2 = request.form.get("q2")
+           with open('./static/question/test.txt', 'w') as f:
+               f.write(question1 + "\n" + question2)
+        return render_template("admin.html")
 
 
 if __name__ == "__main__":

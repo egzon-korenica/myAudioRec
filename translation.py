@@ -19,7 +19,7 @@ def translate():
     lang = "de"
     for sentence in text:
         translation = lt.translate(text=sentence, model_id='en-' + lang).get_result()
-        ts.append(translation['translations'][0]['translation'].rstrip() + '\n\n')
+        ts.append(translation['translations'][0]['translation'].rstrip() + '\n')
 
-    with open("test-" + lang + ".txt", 'w') as out:
+    with open("./static/question/test-" + lang + ".txt", 'w') as out:
             out.writelines(ts)

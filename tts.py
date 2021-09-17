@@ -39,9 +39,13 @@ def interviewDir():
       i += 1
 
 # read from file
-def read():
-    with open("./static/question/test.txt", 'r') as f:
-        text = f.readlines()
+def read(lang):
+    if lang == "de":
+        with open("./static/question/test-de.txt", 'r') as f:
+            text = f.readlines()
+    else:
+        with open("./static/question/test.txt", 'r') as f:
+            text = f.readlines()
 
     text = [line.replace('\n', '') for line in text]
     return text
@@ -51,19 +55,19 @@ def read():
 
 def readQuestion():
     ctr = 0
-    text = read()
+    text = read("en")
     for sentence in text:
-        with open('./audio/{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
+        with open('./static/audio/{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
             res = tts.synthesize(sentence, accept='audio/mp3', voice='en-GB_JamesV3Voice').get_result()
             audio_file.write(res.content)
             ctr +=1
 
-def readQuestion1():
+def readQuestion1(lang):
         ctr = 0
-        text = read()
+        text = read("de")
         for sentence in text:
-            with open('./static/audio1/{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
-                res = tts.synthesize(sentence, accept='audio/mp3', voice='en-GB_JamesV3Voice').get_result()
+            with open(('./static/audio/{ctr:02d}-' + lang + '.mp3').format(ctr=ctr), 'wb') as audio_file:
+                res = tts.synthesize(sentence, accept='audio/mp3', voice='de-DE_ErikaV3Voice').get_result()
                 audio_file.write(res.content)
                 ctr +=1
 

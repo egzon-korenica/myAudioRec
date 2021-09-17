@@ -29,7 +29,8 @@ def index():
 
 @app.route('/background_process_test')
 def background_process_test():
-    tts.readQuestion1()
+    tts.readQuestion()
+    tts.readQuestion1("de")
     return ("nothing")
 
 @app.route('/lt_process')

@@ -13,6 +13,19 @@ class Questions(db.Model):
     q1 = db.Column(db.String(100), nullable=False)
     q2 = db.Column(db.String(100), nullable=False)
     q3 = db.Column(db.String(100), nullable=False)
+    question_ts = db.relationship('QuestionsTranslated', backref='question_lang', lazy=True)
 
     def __repr__(self):
         return f"Questions('{self.q1}', '{self.q2}', '{self.q3}')"
+
+
+class QuestionsTranslated(db.Model):
+    t_id = db.Column(db.Integer, primary_key=True)
+    q_id = db.Column(db.Integer, db.ForeignKey('questions.id'), nullable=False)
+    lan_code = db.Column(db.String(3), nullable=False)
+    q1 = db.Column(db.String(100), nullable=False)
+    q2 = db.Column(db.String(100), nullable=False)
+    q3 = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"QuestionsTranslated('{self.lan_code}','{self.q1}', '{self.q2}', '{self.q3}')"

@@ -21,11 +21,8 @@ tts = TextToSpeechV1(authenticator=authenticator)
 # set service url
 tts.set_service_url(url)
 
-'''
-with open('./speech.mp3', 'wb') as audio_file:
-    res = tts.synthesize("Hello WORLD WORLD WORLD WORLD", accept='audio/mp3', voice='en-US_LisaV3Voice').get_result()
-    audio_file.write(res.content)
-'''
+voices = ['ar-AR_OmarVoice', 'de-DE_BirgitV3Voice', 'en-GB_KateV3Voice', 'es-ES_EnriqueV3Voice', 'fr-CA_LouiseV3Voice',\
+'it-IT_FrancescaV3Voice', 'ja-JP_EmiV3Voice', 'ko-KR_SiWooVoice', 'nl-NL_EmmaVoice', 'pt-BR_IsabelaV3Voice', 'h-CN_ZhangJingVoice']
 
 # create interview folder
 
@@ -39,7 +36,7 @@ def interviewDir():
         keepGoing = False
       i += 1
 
-# read from file
+# read from db
 def read(rows):
     text = []
     for row in rows:
@@ -61,5 +58,3 @@ def readQuestion(rows):
 if __name__ == "__main__":
     read()
     readQuestion()
-    readQuestion1()
-    readQuestion2()

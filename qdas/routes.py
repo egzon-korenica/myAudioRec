@@ -56,7 +56,8 @@ def create_survey():
         db.session.commit()
         text = rows()
         tts.readQuestion(text)
-        translation.translate(text)
+        t_text = translation.translate(text)
+        translation.addToDatabase(t_text)
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 

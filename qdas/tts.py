@@ -11,6 +11,7 @@ from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 import os
 import playsound
+import sqlite3
 
 
 # setup service
@@ -39,39 +40,26 @@ def interviewDir():
       i += 1
 
 # read from file
-def read(lang):
-    if lang == "de":
-        with open("./static/question/test-de.txt", 'r') as f:
-            text = f.readlines()
-    else:
-        with open("./static/question/test.txt", 'r') as f:
-            text = f.readlines()
-
-    text = [line.replace('\n', '') for line in text]
+def read(rows):
+    text = []
+    for row in rows:
+        text.append(row[-3])
+        text.append(row[-2])
+        text.append(row[-1])
     return text
 #text = ''.join(str(line) for line in text)
 
-
-
-def readQuestion():
+def readQuestion(rows):
+    text = read(rows)
     ctr = 0
-    text = read("en")
     for sentence in text:
-        with open('./static/audio/{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
+        with open('qdas/static/audio/{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
             res = tts.synthesize(sentence, accept='audio/mp3', voice='en-GB_JamesV3Voice').get_result()
             audio_file.write(res.content)
             ctr +=1
-
-def readQuestion1(lang):
-        ctr = 0
-        text = read("de")
-        for sentence in text:
-            with open(('./static/audio/{ctr:02d}-' + lang + '.mp3').format(ctr=ctr), 'wb') as audio_file:
-                res = tts.synthesize(sentence, accept='audio/mp3', voice='de-DE_ErikaV3Voice').get_result()
-                audio_file.write(res.content)
-                ctr +=1
 
 if __name__ == "__main__":
     read()
     readQuestion()
     readQuestion1()
+    readQuestion2()

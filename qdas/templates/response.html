@@ -7,11 +7,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
-    <h1>Audio Recorder</h1>
-    <p><strong>Question</strong></p>
-    <audio controls autoplay id="my-audio">
-       <source src="./static/audio/00.mp3" type="audio/mpeg">
-    </audio>
+    <h1>Survey Form</h1>
+    <p><strong>{{questions[-1].q1 }}</strong></p>
+    <input type="button" value="Question" onclick="play()">
+    <audio id="audio"></audio>
 
     <div id="controls">
      <button id="recordButton">Record</button>
@@ -30,7 +29,12 @@
         document.getElementById("my-audio").setAttribute('src', './static/audio/00-de.mp3');
       }
       else{
-        document.getElementById("my-audio").setAttribute('src', './static/audio/00.mp3');
+        document.getElementById("audio").setAttribute('src', './static/audio/00.mp3');
+      }
+
+      function play() {
+        var audio = document.getElementById("audio");
+        audio.play();
       }
     </script>
     <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>

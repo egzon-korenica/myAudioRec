@@ -3,8 +3,8 @@ import sqlite3
 from qdas import app, tts, translation, db
 from flask import request, render_template, url_for, redirect
 from qdas.forms import SurveyForm
-from qdas.models import Questions
-
+from qdas.models import Questions, QuestionsTranslated
+from datetime import datetime
 
 @app.route("/")
 def home():
@@ -13,6 +13,8 @@ def home():
 @app.route("/audio", methods=['POST', 'GET'])
 def index():
     questions = Questions.query.all()
+    questions_t = QuestionsTranslated.query.all()
+    lang = request.args.get('language')
     if request.method == "POST":
         f = request.files['audio_data']
         with open('audio.wav', 'wb') as audio:
@@ -51,13 +53,14 @@ def rows():
 def create_survey():
     form = SurveyForm()
     if form.validate_on_submit():
-        questions = Questions(q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
+        survey_id = (datetime.now().strftime('%Y%m-%d%H-%M%S-')).replace('-', '')
+        questions = Questions(survey_id = survey_id,lan_code=form.lan_code.data, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
         db.session.add(questions)
         db.session.commit()
         text = rows()
         tts.readQuestion(text)
         t_text = translation.translate(text)
-        translation.addToDatabase(t_text)
+        translation.addToDatabase(t_text, survey_id)
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 

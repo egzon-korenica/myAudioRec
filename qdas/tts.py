@@ -55,6 +55,15 @@ def readQuestion(rows):
             audio_file.write(res.content)
             ctr +=1
 
+def readQuestion(rows):
+    text = read(rows)
+    ctr = 0
+    for sentence in text:
+        with open('qdas/static/audio/{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
+            res = tts.synthesize(sentence, accept='audio/mp3', voice='en-GB_JamesV3Voice').get_result()
+            audio_file.write(res.content)
+            ctr +=1
+
 if __name__ == "__main__":
     read()
     readQuestion()

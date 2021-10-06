@@ -2,7 +2,7 @@ import sqlite3
 from ibm_watson import LanguageTranslatorV3
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from qdas import db
-from qdas.models import QuestionsTranslated
+from qdas.models import Questions
 
 apikey = "yFuCchPFCVlie95N3m1FVetEvkCNlsj1Urt8hUVNTI0P"
 url = "https://api.eu-gb.language-translator.watson.cloud.ibm.com/instances/d2b84c14-b9bb-4989-ae81-7fb1364906ba"
@@ -31,7 +31,7 @@ def translate(rows):
             ts.append(translation['translations'][0]['translation'].rstrip())
     return ts
 
-def addToDatabase(t_text):
+def addToDatabase(t_text, survey_id):
     conn = sqlite3.connect('qdas/site.db')
     cursor = conn.cursor()
     cursor.execute("SELECT MAX(date_posted), id FROM Questions")
@@ -39,7 +39,11 @@ def addToDatabase(t_text):
 
     l=0
     for i,k,s in zip(t_text[0::3], t_text[1::3], t_text[2::3]):
-            q_translated = QuestionsTranslated(q_id=id[0][0], lan_code=lang_codes[l], q1=i, q2=k, q3=s)
+            q_translated = Questions(survey_id=survey_id, lan_code=lang_codes[l], q1=i, q2=k, q3=s)
             db.session.add(q_translated)
             db.session.commit()
             l=l+1
+
+if __name__ == "__main__":
+    translate()
+    addToDatabase()

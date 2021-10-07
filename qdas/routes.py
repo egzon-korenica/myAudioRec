@@ -1,9 +1,9 @@
 import os
 import sqlite3
-from qdas import app, tts, translation, db
+from qdas import app, tts, translation, db, querys
 from flask import request, render_template, url_for, redirect
 from qdas.forms import SurveyForm
-from qdas.models import Questions, QuestionsTranslated
+from qdas.models import Questions, Survey
 from datetime import datetime
 
 @app.route("/")
@@ -41,26 +41,21 @@ def dashboard():
     questions = Questions.query.all()
     return render_template("dashboard.html", questions = questions)
 
-def rows():
-    conn = sqlite3.connect('qdas/site.db')
-    print("Opened database successfully");
-    cursor = conn.cursor()
-    cursor.execute("SELECT MAX(date_posted), id, q1, q2, q3 FROM Questions")
-    rows = cursor.fetchall()
-    return rows
+
 
 @app.route("/dashboard/create-survey", methods=["GET", "POST"])
 def create_survey():
     form = SurveyForm()
     if form.validate_on_submit():
-        survey_id = (datetime.now().strftime('%Y%m-%d%H-%M%S-')).replace('-', '')
-        questions = Questions(survey_id = survey_id,lan_code=form.lan_code.data, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
-        db.session.add(questions)
+        survey_lang = translation.identifySurveyLang(form.q1.data)
+        questions = Questions(lan_code=survey_lang, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
+        survey = Survey(question_ts=[questions])
+        db.session.add(survey)
         db.session.commit()
-        text = rows()
+        text = querys.rows()
         tts.readQuestion(text)
         t_text = translation.translate(text)
-        translation.addToDatabase(t_text, survey_id)
+        translation.addToDatabase(t_text)
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 

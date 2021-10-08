@@ -39,7 +39,7 @@ def identifySurveyLang(text):
 def addToDatabase(t_text):
     l=0
     for i,k,s in zip(t_text[0::3], t_text[1::3], t_text[2::3]):
-            survey = db.session.query(Survey).first()
+            survey = db.session.query(Survey).order_by(Survey.id.desc()).first()
             q_translated = Questions(lan_code=lang_codes[l], q1=i, q2=k, q3=s)
             survey.question_ts.append(q_translated)
             db.session.commit()

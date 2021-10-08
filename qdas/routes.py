@@ -12,9 +12,8 @@ def home():
 
 @app.route("/audio", methods=['POST', 'GET'])
 def index():
-    questions = Questions.query.all()
-    questions_t = QuestionsTranslated.query.all()
     lang = request.args.get('language')
+    questions = db.session.query(Questions).filter(Questions.lan_code==lang).first()
     if request.method == "POST":
         f = request.files['audio_data']
         with open('audio.wav', 'wb') as audio:
@@ -27,7 +26,7 @@ def index():
 
 @app.route('/background_process_test')
 def background_process_test():
-    tts.readQuestion()
+    #tts.readQuestion()
     #tts.readQuestion1("de")
     return ("nothing")
 
@@ -38,9 +37,8 @@ def translate():
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    questions = Questions.query.all()
-    return render_template("dashboard.html", questions = questions)
-
+    surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
+    return render_template("dashboard.html", surveys = surveys)
 
 
 @app.route("/dashboard/create-survey", methods=["GET", "POST"])
@@ -53,9 +51,9 @@ def create_survey():
         db.session.add(survey)
         db.session.commit()
         text = querys.rows()
-        tts.readQuestion(text)
         t_text = translation.translate(text)
         translation.addToDatabase(t_text)
+        tts.createAudioFiles()
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 

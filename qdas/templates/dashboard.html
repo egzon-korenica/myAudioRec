@@ -34,14 +34,14 @@
                     <p class="font-italic text-muted mb-1">A list of all surveys</p>
                 </header>
             <div class="row">
-            {% for question in questions %}
+            {% for survey in surveys %}
                       <div class="col-sm-5">
                         <div class="card effect-5">
                           <div class="card-body p-5">
-                            <h2 class="h5">Survey {{ question.id }}</h2>
-                            <p class="font-italic text-muted">{{ question.q1 }}</p>
-                            <p class="font-italic text-muted">{{ question.q2 }}</p>
-                            <p class="font-italic text-muted">{{ question.q3 }}</p>
+                            <h2 class="h5">Survey {{ survey.Survey.id }}</h2>
+                            <p class="font-italic text-muted">{{ survey.Questions.q1 }}</p>
+                            <p class="font-italic text-muted">{{ survey.Questions.q2 }}</p>
+                            <p class="font-italic text-muted">{{ survey.Questions.q3 }}</p>
                           </div>
                         </div>
                       </div>

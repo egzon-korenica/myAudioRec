@@ -1,22 +1,53 @@
-import json
-from ibm_watson import LanguageTranslatorV3
-from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-
-authenticator = IAMAuthenticator('yFuCchPFCVlie95N3m1FVetEvkCNlsj1Urt8hUVNTI0P')
-language_translator = LanguageTranslatorV3(
-    version='2018-05-01',
-    authenticator=authenticator
-)
-
-language_translator.set_service_url('https://api.eu-gb.language-translator.watson.cloud.ibm.com/instances/d2b84c14-b9bb-4989-ae81-7fb1364906ba')
+from qdas import db
+from qdas.models import Questions, Survey
+from sqlalchemy.orm import sessionmaker
 
 
-def lang(text):
-        language = language_translator.identify(text).get_result()
-        lcode = language['languages'][0]['language']
-        print(lcode)
-        return lcode
-    
-var = lang("I'm fine")
+result = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
 
-print(var)
+#for row in result:
+ # print("survey_id", row.Survey.id, "Q1:", row.Questions.q1, "Q1:", row.Questions.q1, "Q2:", row.Questions.q2, "Q3:", row.Questions.q3)
+  
+query = db.session.query(Questions).filter(Questions.lan_code=="en").first()
+
+voices = {
+  "ar": "ar-AR_OmarVoice",
+  "de": "de-DE_BirgitV3Voice",
+  "en": "en-GB_KateV3Voice",
+  "es": "es-ES_EnriqueV3Voice",
+  "fr": "fr-CA_LouiseV3Voice"
+  #"it": "Mustang",
+  #"ja": "Mustang",
+  #"ko": "Mustang",
+  #"nl": "Mustang",
+  #"pt": "Mustang",
+  #"de": "Mustang",
+  #"zh": "Mustang"
+}
+
+currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
+survey= db.session.query(Questions).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == "en").all()
+#surveys = db.session.query(Survey, Questions).filter(Survey.id == survey_id).filter(Survey.id == Questions.survey_id).all()
+
+#for row in survey:
+ #   print("survey_id", row.Survey.id, "Q1:", row.Questions.q1, "Q2:", row.Questions.q2, "Q3:", row.Questions.q3)
+
+
+#for key in voices:
+ #   print(key)
+
+def read2(lcode):
+    currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
+    surveyQuestions= db.session.query(Questions).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == lcode).all()
+    text = []
+    #print(surveyQuestions)
+    for question in surveyQuestions:
+        text.append(question.q1)
+        text.append(question.q2)
+        text.append(question.q3)
+    return text    
+
+read2("en")
+
+for key, value in voices.items():
+    print(read2(key))

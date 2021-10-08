@@ -55,12 +55,14 @@ def interviewDir():
 
 def read(lcode):
     currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-    surveyQuestions= db.session.query(Survey, Questions).filter(Survey.id==currentSurvey.id).filter(Questions.lan_code == lcode)
+    #surveyQuestions= db.session.query(Survey, Questions).filter(Survey.id==currentSurvey.id).filter(Questions.lan_code == lcode).all()
+    surveyQuestions= db.session.query(Questions).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == lcode).all()
+    print(surveyQuestions)
     text = []
     for question in surveyQuestions:
-        text.append(question.Questions.q1)
-        text.append(question.Questions.q2)
-        text.append(question.Questions.q3)
+        text.append(question.q1)
+        text.append(question.q2)
+        text.append(question.q3)
     return text
 
 def readQuestion(lcode, voice):

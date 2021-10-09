@@ -14,17 +14,17 @@ def home():
 @app.route("/survey", methods=['POST', 'GET'])
 def index():
     lang = request.args.get('language')
-    #questions = db.session.query(Questions).filter(Questions.lan_code==lang).first()
-    currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-    surveyQuestions= db.session.query(Questions).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == lang).first()
+    questions = tts.read(lang)
+    print(questions)
+    tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace("qdas", ".")
     if request.method == "POST":
         f = request.files['audio_data']
         with open('audio.wav', 'wb') as audio:
             f.save(audio)
         print('file uploaded successfully')
-        return render_template('response.html', request="POST", questions = surveyQuestions)
+        return render_template('response.html', request="POST", questions=questions, dir=tdir)
     else:
-        return render_template("response.html", questions = surveyQuestions)
+        return render_template("response.html", questions=questions, dir=tdir)
 
 
 @app.route('/background_process_test')

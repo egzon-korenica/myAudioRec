@@ -42,6 +42,7 @@ def read2(lcode):
     text = []
     #print(surveyQuestions)
     for question in surveyQuestions:
+        print(question[:2])
         text.append(question.q1)
         text.append(question.q2)
         text.append(question.q3)

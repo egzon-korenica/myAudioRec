@@ -8,34 +8,38 @@
   </head>
   <body>
     <h1>Survey Form</h1>
-    <p><strong>{{ questions.q1 }}</strong></p>
-    <input type="button" value="Question" onclick="play()">
-    <audio id="audio"></audio>
+    {% for question in questions %}
+      <p><strong>{{ question }}</strong></p>
+      <input type="button" value="Question" onclick="play({{ loop.index }})">
+      <audio id="audio"></audio>
 
-    <div id="controls">
-     <button id="recordButton">Record</button>
-     <button id="pauseButton" disabled>Pause</button>
-     <button id="stopButton" disabled>Stop</button>
-    </div>
-    <p><strong>Recorded response:</strong></p>
-    <ol id="recordingsList"></ol>
-
+      <div id="controls">
+       <button id="recordButton">Record</button>
+       <button id="pauseButton" disabled>Pause</button>
+       <button id="stopButton" disabled>Stop</button>
+      </div>
+      <p><strong>Recorded response:</strong></p>
+      <ol id="recordingsList"></ol>
+    {% endfor %}
     <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
     <script>
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
       const lang = urlParams.get('language')
-      if (lang == "de"){
-        document.getElementById("my-audio").setAttribute('src', './static/audio/00-de.mp3');
-      }
-      else{
-        document.getElementById("audio").setAttribute('src', './static/audio/00.mp3');
-      }
+      var allAudio = document.getElementsByTagName("audio");
 
-      function play() {
-        var audio = document.getElementById("audio");
+      for (var i=0, max=allAudio.length; i < max; i++) {
+        allAudio[i].setAttribute('src', '{{ dir }}' + lang + '0' + i.toString() + '.mp3');
+        allAudio[i].setAttribute('id', 'audio' + i.toString())
+      }
+      function play(idx) {
+        ctr = idx - 1
+        var audio = document.getElementById("audio" + ctr.toString());
         audio.play();
       }
+
+
+
     </script>
     <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>
     <script src="/static/js/app.js"></script>

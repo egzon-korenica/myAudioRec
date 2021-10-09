@@ -43,21 +43,19 @@ voices = {
 
 # create interview folder
 
-def interviewDir():
+def audioDir():
     i=1
     keepGoing=True
     while keepGoing:
-      path = "interviews/interview_{}/".format(i)
+      path = "qdas/static/audios/audio_{}/".format(i)
       if not os.path.exists(path):
-        os.makedirs(os.path.dirname("interviews/interview_{}/".format(i)), exist_ok=False)
+        os.makedirs(os.path.dirname("qdas/static/audios/audio_{}/".format(i)), exist_ok=False)
         keepGoing = False
       i += 1
 
 def read(lcode):
     currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-    #surveyQuestions= db.session.query(Survey, Questions).filter(Survey.id==currentSurvey.id).filter(Questions.lan_code == lcode).all()
     surveyQuestions= db.session.query(Questions).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == lcode).all()
-    print(surveyQuestions)
     text = []
     for question in surveyQuestions:
         text.append(question.q1)
@@ -65,20 +63,21 @@ def read(lcode):
         text.append(question.q3)
     return text
 
-def readQuestion(lcode, voice):
+def readQuestion(lcode, voice, dir):
     text = read(lcode)
     ctr = 0
     for sentence in text:
-        with open('qdas/static/audio/' + lcode + '{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
+        with open(dir + lcode + '{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
             res = tts.synthesize(sentence, accept='audio/mp3', voice=voice).get_result()
             audio_file.write(res.content)
             ctr +=1
 
-def createAudioFiles():
+def createAudioFiles(dir):
     for key, value in voices.items():
-        readQuestion(key, value)
+        readQuestion(key, value, dir)
 
 if __name__ == "__main__":
     read()
     readQuestion()
     createAudioFiles()
+    audioDir()

@@ -17,6 +17,7 @@ lang_codes = ['ar', 'zh', 'nl', 'fr', 'de', 'it', 'ja', 'ko', 'pt', 'es']
 def read(rows):
     text = []
     for row in rows:
+        text.append(row[-4])
         text.append(row[-3])
         text.append(row[-2])
         text.append(row[-1])
@@ -38,9 +39,9 @@ def identifySurveyLang(text):
 
 def addToDatabase(t_text):
     l=0
-    for i,k,s in zip(t_text[0::3], t_text[1::3], t_text[2::3]):
+    for j,i,k,s in zip(t_text[0::4], t_text[1::4], t_text[2::4], t_text[3::4]):
             survey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-            q_translated = Questions(lan_code=lang_codes[l], q1=i, q2=k, q3=s)
+            q_translated = Questions(lan_code=lang_codes[l], topic=j, q1=i, q2=k, q3=s)
             survey.question_ts.append(q_translated)
             db.session.commit()
             l=l+1

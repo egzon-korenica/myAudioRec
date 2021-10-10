@@ -15,16 +15,17 @@ def home():
 def index():
     lang = request.args.get('language')
     questions = tts.read(lang)
-    print(questions)
+    currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
+    topic= db.session.query(Questions.topic).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == lang).first()
     tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace("qdas", ".")
     if request.method == "POST":
         f = request.files['audio_data']
         with open('audio.wav', 'wb') as audio:
             f.save(audio)
         print('file uploaded successfully')
-        return render_template('response.html', request="POST", questions=questions, dir=tdir)
+        return render_template('response.html', request="POST", questions=questions, topic=topic, dir=tdir)
     else:
-        return render_template("response.html", questions=questions, dir=tdir)
+        return render_template("response.html", questions=questions, topic=topic, dir=tdir)
 
 
 @app.route('/background_process_test')
@@ -40,7 +41,7 @@ def translate():
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
+    surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).order_by(Survey.id.desc()).all()
     return render_template("dashboard.html", surveys = surveys)
 
 
@@ -49,7 +50,7 @@ def create_survey():
     form = SurveyForm()
     if form.validate_on_submit():
         survey_lang = translation.identifySurveyLang(form.q1.data)
-        questions = Questions(lan_code=survey_lang, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
+        questions = Questions(lan_code=survey_lang, topic=form.topic.data, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
         survey = Survey(question_ts=[questions])
         db.session.add(survey)
         db.session.commit()

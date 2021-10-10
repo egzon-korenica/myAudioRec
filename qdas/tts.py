@@ -4,8 +4,8 @@
 # convert fromm a file
 # using new language models
 
-url = 'https://api.eu-gb.text-to-speech.watson.cloud.ibm.com/instances/58f23641-330d-4584-a281-1fa87ff5431a'
-apikey = 'EWtDUdU2pOw1TCVwiQtSPX7uSva3QSg8QBXzJpFX9Tbx'
+url = 'https://api.us-south.text-to-speech.watson.cloud.ibm.com/instances/f90687bc-d43e-411c-9358-de3216544165'
+apikey = 'SRQbqdYtBR_7PPbsU53pOKcIshXvUPvOQpIhaDtKFFnE'
 
 from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator

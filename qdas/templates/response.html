@@ -7,16 +7,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
-    <h1>Survey Form</h1>
+    <h1>{{ topic.topic }} - Survey</h1>
     {% for question in questions %}
       <p><strong>{{ question }}</strong></p>
       <input type="button" value="Question" onclick="play({{ loop.index }})">
       <audio id="audio"></audio>
 
       <div id="controls">
-       <button id="recordButton">Record</button>
-       <button id="pauseButton" disabled>Pause</button>
-       <button id="stopButton" disabled>Stop</button>
+       <button id="recordButton" class="record">Record</button>
+       <button id="pauseButton" class="pause" disabled>Pause</button>
+       <button id="stopButton" class="stop" disabled>Stop</button>
       </div>
       <p><strong>Recorded response:</strong></p>
       <ol id="recordingsList"></ol>
@@ -27,6 +27,9 @@
       const urlParams = new URLSearchParams(queryString);
       const lang = urlParams.get('language')
       var allAudio = document.getElementsByTagName("audio");
+      var allRecordButtons = document.getElementsByClassName("record");
+      var allPauseButtons = document.getElementsByClassName("pause");
+      var allStopButtons = document.getElementsByClassName("stop");
 
       for (var i=0, max=allAudio.length; i < max; i++) {
         allAudio[i].setAttribute('src', '{{ dir }}' + lang + '0' + i.toString() + '.mp3');

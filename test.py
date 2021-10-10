@@ -1,6 +1,7 @@
 from qdas import db
 from qdas.models import Questions, Survey
 from sqlalchemy.orm import sessionmaker
+import sqlite3
 
 
 result = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
@@ -50,8 +51,33 @@ def read2(lcode):
 
 
 #surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
-surveys = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == 1).filter(Questions.lan_code=="en").all()
-for survey in surveys:
-    print(survey.Survey.id)
+#surveys = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == 1).filter(Questions.lan_code=="en").all()
+#for survey in surveys:
+ #   print(survey.Survey.id)f
 
+
+
+def rows():
+    conn = sqlite3.connect('qdas/site.db')
+    print("Opened database successfully")
+    cursor = conn.cursor()
+    cursor.execute("SELECT MAX(s.date_posted), survey_title, q1, q2, q3 FROM Questions q INNER JOIN Survey s on q.survey_id = s.id")
+    rows = cursor.fetchall()
+    return rows
+
+
+def read(rows):
+    text = []
+    for row in rows:
+        text.append(row[-4])
+        text.append(row[-3])
+        text.append(row[-2])
+        text.append(row[-1])
+    return text
+
+currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
+surveyQuestions= db.session.query(Questions.topic).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == "en").first()
+
+print(surveyQuestions.topic)
+    
 

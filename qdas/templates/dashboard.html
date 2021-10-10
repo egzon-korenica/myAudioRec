@@ -38,7 +38,7 @@
                       <div class="col-sm-5">
                         <div class="card effect-5">
                           <div class="card-body p-5">
-                            <h2 class="h5"><a class="article-title" href="{{ url_for('survey', survey_id=survey.Survey.id) }}">Survey {{ survey.Survey.id }}</a></h2>
+                            <h2 class="h5"><a class="article-title" href="{{ url_for('survey', survey_id=survey.Survey.id) }}">{{ survey.Questions.topic }}</a></h2>
                             <p class="font-italic text-muted">{{ survey.Questions.q1 }}</p>
                             <p class="font-italic text-muted">{{ survey.Questions.q2 }}</p>
                             <p class="font-italic text-muted">{{ survey.Questions.q3 }}</p>

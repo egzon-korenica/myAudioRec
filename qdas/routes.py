@@ -11,7 +11,7 @@ from datetime import datetime
 def home():
         return render_template("homepage.html")
 
-@app.route("/survey", methods=['POST', 'GET'])
+@app.route("/response", methods=['POST', 'GET'])
 def index():
     lang = request.args.get('language')
     questions = tts.read(lang)
@@ -62,6 +62,10 @@ def create_survey():
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 
+@app.route("/survey/<int:survey_id>")
+def survey(survey_id):
+    survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
+    return render_template('survey.html', survey = survey)
 
 if __name__ == "__main__":
     app.run(debug=True)

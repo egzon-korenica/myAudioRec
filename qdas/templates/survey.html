@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <div class="col-sm-5">
+      <div class="card effect-5">
+        <div class="card-body p-5">
+          {% for k in survey %}
+            <h2 class="h5">Survey {{ k.Survey.id }}</h2>
+            <p class="font-italic text-muted">{{ k.Questions.q1 }}</p>
+            <p class="font-italic text-muted">{{ k.Questions.q2 }}</p>
+            <p class="font-italic text-muted">{{ k.Questions.q3 }}</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

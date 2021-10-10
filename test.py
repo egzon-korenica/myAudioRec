@@ -48,7 +48,10 @@ def read2(lcode):
         text.append(question.q3)
     return text    
 
-read2("en")
 
-for key, value in voices.items():
-    print(read2(key))
+#surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
+surveys = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == 1).filter(Questions.lan_code=="en").all()
+for survey in surveys:
+    print(survey.Survey.id)
+
+

@@ -1,21 +1,19 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title></title>
-  </head>
-  <body>
-    <div class="col-sm-5">
-      <div class="card effect-5">
-        <div class="card-body p-5">
-          {% for k in survey %}
-            <h2 class="h5">Survey {{ k.Survey.id }}</h2>
-            <p class="font-italic text-muted">{{ k.Questions.q1 }}</p>
-            <p class="font-italic text-muted">{{ k.Questions.q2 }}</p>
-            <p class="font-italic text-muted">{{ k.Questions.q3 }}</p>
-          {% endfor %}
-        </div>
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container h-100">
+      <div class="row align-items-center h-100">
+          <div class="col-6 mx-auto">
+              <div class="jumbotron">
+                {% for k in survey %}
+                  <h2 class="display-4">{{ k.Questions.topic }}</h2>
+                  <p class="h5">{{ k.Questions.q1 }}</p>
+                  <p class="h5">{{ k.Questions.q2 }}</p>
+                  <p class="h5">{{ k.Questions.q3 }}</p>
+                {% endfor %}
+              </div>
+          </div>
       </div>
     </div>
-  </body>
-</html>
+
+
+{% endblock content %}

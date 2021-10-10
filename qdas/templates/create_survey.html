@@ -1,60 +1,21 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-	<title>Survey</title>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<style type="text/css">
-		.form-elements {
-			margin-top: 10px;
-		}
-
-		#frm-add-data .form-group {
-			margin-right: 20px;
-		}
-    .container{
-      text-align:center;
-    }
-  .form-group #question1 {
-    margin-left: 0px;
-    padding-left: 15px;
-	  }
-  .form-group #label1{
-    padding-left: 20px;
-  }
-	.form-control {
-		margin: 10px;
-	}
-	.container {
-		margin-top: 20px;
-	}
-	</style>
-</head>
-	<body>
-			<div class="container">
-				<h2>Create Survey</h2>
-						<form class="form-inline" id="frm-add-data" action="{{ url_for("create_survey")}}" method="post">
-							{{ form.hidden_tag() }}
-							<div class="field_wrapper">
-								<div>
-									<div class="form-group">
-											{{ form.topic.label(class="form-control-label") }}
-											{{ form.topic(class="form-control form-control-lg") }} <br>
-											{{ form.q1.label(class="form-control-label") }}
-											{{ form.q1(class="form-control form-control-lg") }} <br>
-											{{ form.q2.label(class="form-control-label") }}
-											{{ form.q2(class="form-control form-control-lg") }} <br>
-											{{ form.q3.label(class="form-control-label") }}
-											{{ form.q3(class="form-control form-control-lg") }} <br>
-									</div>
+{% extends "layout.html" %}
+{% block content %}
+			<h2 class="mt-5">Create Survey</h2>
+					<form class="createSurvey mt-2" action="{{ url_for("create_survey")}}" method="post">
+						{{ form.hidden_tag() }}
+						<div class="field_wrapper">
+								<div class="form-group">
+										{{ form.topic.label(class="form-control-label") }}
+										{{ form.topic(class="form-control form-control-sm") }}
+										{{ form.q1.label(class="form-control-label") }}
+										{{ form.q1(class="form-control form-control-sm") }} <br>
+										{{ form.q2.label(class="form-control-label") }}
+										{{ form.q2(class="form-control form-control-sm") }} <br>
+										{{ form.q3.label(class="form-control-label") }}
+										{{ form.q3(class="form-control form-control-sm") }} <br>
 								</div>
-							</div>
-							<p><button type="submit" class="btn btn-default">Generate Survey</button></p>
-						</form>
-			</div>
-	</body>
-</html>
+						</div>
+						<p><button type="submit" class="btn btn-default">Generate Survey</button></p>
+					</form>
+
+{% endblock content %}

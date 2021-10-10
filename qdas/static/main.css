@@ -166,3 +166,30 @@ section {
     margin-bottom: 2.5rem;
     border: none;
 }
+
+
+.form-elements {
+  margin-top: 10px;
+}
+
+#frm-add-data .form-group {
+  margin-right: 20px;
+}
+
+.form-group #question1 {
+margin-left: 0px;
+padding-left: 15px;
+}
+.form-group #label1{
+padding-left: 20px;
+}
+.form-control {
+margin: 10px;
+}
+.createSurvey {
+  margin-top: 20px;
+}
+
+.container{
+  margin-top: 200px;
+}

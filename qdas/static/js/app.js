@@ -139,14 +139,12 @@ function createDownloadLink(blob, index) {
     //add the save to disk link to li
     li.appendChild(link);
 
-    var buttons = document.querySelectorAll( "button[id^='recordButton_']" );
-    console.log(buttons.length)
-
     //submit link
     var submit = document.createElement('a');
     submit.href="#";
     submit.innerHTML = "Submit";
     submit.setAttribute("name", "submitButton");
+    submit.setAttribute("id", "submitButton" + index);
     submit.addEventListener("click", function(event){
           var xhr=new XMLHttpRequest();
           xhr.onload=function(e) {
@@ -166,6 +164,9 @@ function createDownloadLink(blob, index) {
     console.log('recordingsList_' + index)
     document.getElementById('recordingsList_' + index).appendChild(li);
 
-
+    var recButtons = document.querySelectorAll( "button[id^='recordButton_']" );
+    console.log(recButtons.length)
+    var lastSubmitButton = document.getElementById("submitButton" + recButtons.length)
+    lastSubmitButton.setAttribute("href", "/success")
 
 }

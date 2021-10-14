@@ -1,6 +1,7 @@
 import os
 import glob
 import sqlite3
+import requests
 from qdas import app, tts, translation, db, querys, response
 from flask import request, render_template, url_for, redirect
 from qdas.forms import SurveyForm
@@ -10,7 +11,6 @@ from datetime import datetime
 @app.route("/")
 def home():
         return render_template("homepage.html")
-
 
 @app.route("/response", methods=['POST', 'GET'])
 def index():
@@ -26,6 +26,11 @@ def index():
     else:
         response.audioResponseDir()
         return render_template("response.html", questions=questions, topic=topic, dir=tdir)
+
+@app.route("/success",methods=['GET'])
+def success():
+    requests.post('http://127.0.0.1:5000/response?language=en#')
+    return "<h2>Survey submitted successfully</h2>"
 
 
 @app.route('/background_process_test')

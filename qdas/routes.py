@@ -1,7 +1,7 @@
 import os
 import glob
 import sqlite3
-from qdas import app, tts, translation, db, querys
+from qdas import app, tts, translation, db, querys, response
 from flask import request, render_template, url_for, redirect
 from qdas.forms import SurveyForm
 from qdas.models import Questions, Survey
@@ -11,20 +11,20 @@ from datetime import datetime
 def home():
         return render_template("homepage.html")
 
+
 @app.route("/response", methods=['POST', 'GET'])
 def index():
+    #response.audioResponseDir()
     lang = request.args.get('language')
     questions = tts.read(lang)
     currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
     topic= db.session.query(Questions.topic).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == lang).first()
     tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace("qdas", ".")
     if request.method == "POST":
-        f = request.files['audio_data']
-        with open('audio.wav', 'wb') as audio:
-            f.save(audio)
-        print('file uploaded successfully')
+        response.saveResponse()
         return render_template('response.html', request="POST", questions=questions, topic=topic, dir=tdir)
     else:
+        response.audioResponseDir()
         return render_template("response.html", questions=questions, topic=topic, dir=tdir)
 
 

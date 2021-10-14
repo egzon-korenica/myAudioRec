@@ -8,20 +8,18 @@ var input;                          //MediaStreamAudioSourceNode we'll be record
 // shim for AudioContext when it's not avb.
 var AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext //audio context to help us record
+// let max = document.getElementsByTagName("audio").length;
 
-var recordButton = document.getElementById("recordButton");
-var stopButton = document.getElementById("stopButton");
-var pauseButton = document.getElementById("pauseButton");
+for (let i = 1; i <= max; i++) {
+    document.getElementById("recordButton_" + i).addEventListener("click", () => { startRecording(i) });
+    document.getElementById("stopButton_" + i).addEventListener("click", () => {stopRecording(i)});
+    document.getElementById("pauseButton_" + i).addEventListener("click", () => { pauseRecording(i) });
+}
 
-//add events to those 2 buttons
-recordButton.addEventListener("click", startRecording);
-stopButton.addEventListener("click", stopRecording);
-pauseButton.addEventListener("click", pauseRecording);
-
-function startRecording() {
+function startRecording(index) {
     console.log("recordButton clicked");
 
-    var myList = document.getElementById('recordingsList')
+    var myList = document.getElementById('recordingsList_'+index)
     myList.innerHTML = '';
 
     /*
@@ -34,9 +32,11 @@ function startRecording() {
         Disable the record button until we get a success or fail from getUserMedia()
     */
 
-    recordButton.disabled = true;
-    stopButton.disabled = false;
-    pauseButton.disabled = false
+    for (let i = 1; i <= max; i++)
+        document.getElementById("recordButton_" + i).disabled = true;
+
+    document.getElementById("stopButton_" + index).disabled = false;
+    document.getElementById("pauseButton_" + index).disabled = false
 
     /*
         We're using the standard promise based getUserMedia()
@@ -73,36 +73,40 @@ function startRecording() {
 
     }).catch(function(err) {
         //enable the record button if getUserMedia() fails
-        recordButton.disabled = false;
-        stopButton.disabled = true;
-        pauseButton.disabled = true
+        for (let i = 1; i <= max; i++)
+            document.getElementById("recordButton_" + i).disabled = false;
+
+        document.getElementById("stopButton_" + index).disabled = true;
+        document.getElementById("pauseButton_" + index).disabled = true
     });
 }
 
-function pauseRecording(){
+function pauseRecording(index){
     console.log("pauseButton clicked rec.recording=",rec.recording );
     if (rec.recording){
         //pause
         rec.stop();
-        pauseButton.innerHTML="Resume";
+        document.getElementById("pauseButton_" + index).innerHTML="Resume";
     }else{
         //resume
         rec.record()
-        pauseButton.innerHTML="Pause";
+        document.getElementById("pauseButton_" + index).innerHTML="Pause";
 
     }
 }
 
-function stopRecording() {
+function stopRecording(index) {
     console.log("stopButton clicked");
 
     //disable the stop button, enable the record too allow for new recordings
-    stopButton.disabled = true;
-    recordButton.disabled = false;
-    pauseButton.disabled = true;
+    for (let i = 1; i <= max; i++)
+        document.getElementById("recordButton_" + i).disabled = false;
+
+    document.getElementById("stopButton_" + index).disabled = true;
+    document.getElementById("pauseButton_" + index).disabled = true
 
     //reset button just in case the recording is stopped while paused
-    pauseButton.innerHTML="Pause";
+    document.getElementById("pauseButton_" + index).innerHTML="Pause";
 
     //tell the recorder to stop the recording
     rec.stop();
@@ -111,10 +115,10 @@ function stopRecording() {
     gumStream.getAudioTracks()[0].stop();
 
     //create the wav blob and pass it on to createDownloadLink
-    rec.exportWAV(createDownloadLink);
+    rec.exportWAV((blob) => { createDownloadLink(blob, index) });
 }
 
-function createDownloadLink(blob) {
+function createDownloadLink(blob, index) {
 
     var url = URL.createObjectURL(blob);
     var au = document.createElement('audio');
@@ -134,6 +138,9 @@ function createDownloadLink(blob) {
 
     //add the save to disk link to li
     li.appendChild(link);
+
+    var buttons = document.querySelectorAll( "button[id^='recordButton_']" );
+    console.log(buttons.length)
 
     //submit link
     var submit = document.createElement('a');
@@ -156,6 +163,9 @@ function createDownloadLink(blob) {
     li.appendChild(submit)//add the submit link to li
 
     //add the li element to the ol
-    recordingsList.appendChild(li);
+    console.log('recordingsList_' + index)
+    document.getElementById('recordingsList_' + index).appendChild(li);
+
+
 
 }

@@ -14,12 +14,12 @@
       <audio id="audio"></audio>
 
       <div id="controls">
-       <button id="recordButton" class="record">Record</button>
-       <button id="pauseButton" class="pause" disabled>Pause</button>
-       <button id="stopButton" class="stop" disabled>Stop</button>
+       <button id="recordButton_{{ loop.index }}" class="record">Record</button>
+       <button id="pauseButton_{{ loop.index }}" class="pause" disabled>Pause</button>
+       <button id="stopButton_{{ loop.index }}" class="stop" disabled>Stop</button>
       </div>
       <p><strong>Recorded response:</strong></p>
-      <ol id="recordingsList"></ol>
+      <ol id="recordingsList_{{ loop.index }}"></ol>
     {% endfor %}
     <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
     <script>

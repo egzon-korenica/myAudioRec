@@ -27,10 +27,15 @@ def index():
         response.audioResponseDir()
         return render_template("response.html", questions=questions, topic=topic, dir=tdir)
 
-@app.route("/success",methods=['GET'])
+@app.route("/success",methods=["POST", "GET"])
 def success():
-    requests.post('http://127.0.0.1:5000/response?language=en#')
-    return "<h2>Survey submitted successfully</h2>"
+    if request.method == "POST":
+        response.saveResponse()
+        return "<h2>Survey submitted successfully</h2>"
+    else:
+        print(request.files)
+        return "<h2> not found </h2>"
+
 
 
 @app.route('/background_process_test')
@@ -68,7 +73,7 @@ def create_survey():
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 
-@app.route("/survey/<int:survey_id>")
+@app.route("/dashboard/survey/<int:survey_id>")
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
     return render_template('survey.html', survey = survey)

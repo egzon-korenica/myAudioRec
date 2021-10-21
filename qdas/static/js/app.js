@@ -139,6 +139,7 @@ function createDownloadLink(blob, index) {
     //add the save to disk link to li
     li.appendChild(link);
 
+
     //submit link
     var submit = document.createElement('a');
     submit.href="#";
@@ -161,12 +162,7 @@ function createDownloadLink(blob, index) {
     li.appendChild(submit)//add the submit link to li
 
     //add the li element to the ol
-    console.log('recordingsList_' + index)
+    console.log('recordingsList_' + index);
     document.getElementById('recordingsList_' + index).appendChild(li);
-
-    var recButtons = document.querySelectorAll( "button[id^='recordButton_']" );
-    console.log(recButtons.length)
-    var lastSubmitButton = document.getElementById("submitButton" + recButtons.length)
-    lastSubmitButton.setAttribute("href", "/success")
 
 }

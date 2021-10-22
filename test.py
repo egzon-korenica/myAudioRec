@@ -2,7 +2,8 @@ from qdas import db
 from qdas.models import Questions, Survey
 from sqlalchemy.orm import sessionmaker
 import sqlite3
-
+import glob
+import os
 
 result = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).all()
 
@@ -78,6 +79,18 @@ def read(rows):
 currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
 surveyQuestions= db.session.query(Questions.topic).filter(Questions.survey_id == currentSurvey.id, Questions.lan_code == "en").first()
 
-print(surveyQuestions.topic)
+
+TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audioResponses', '*/')), key=os.path.getmtime))[:-1] + "/"
+#print(TARGET_DIR)
+
+rootdir = 'qdas/static/audioResponses/'
+
+dir = []
+for subdir, dirs, files in os.walk(rootdir):
+    for file in files:
+        path = os.path.join(subdir, file)
+        dir.append(path)
+        
+print(dir, len(dir))
     
 

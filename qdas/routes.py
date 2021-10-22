@@ -24,7 +24,7 @@ def index():
         response.saveResponse()
         return render_template('response.html', request="POST", questions=questions, topic=topic, dir=tdir)
     else:
-        response.audioResponseDir()
+        response.audioResponseDir("audio")
         return render_template("response.html", questions=questions, topic=topic, dir=tdir)
 
 @app.route("/success",methods=["POST", "GET"])
@@ -70,6 +70,7 @@ def create_survey():
         tts.audioDir()
         TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/"
         tts.createAudioFiles(TARGET_DIR)
+        response.audioResponseDir("survey")
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 

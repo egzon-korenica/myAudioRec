@@ -3,24 +3,35 @@ import glob
 from flask import request
 
 
-def audioResponseDir():
-    i=1
+def audioResponseDir(folderType):
+    i= 1
     keepGoing=True
-    while keepGoing:
-      path = "qdas/static/audioResponses/audio_{}/".format(i)
-      if not os.path.exists(path):
-        path = os.makedirs(os.path.dirname("qdas/static/audioResponses/audio_{}/".format(i)), exist_ok=False)
-        keepGoing = False
-      i += 1
+    if folderType == "audio":
+        TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audioResponses', '*/')), key=os.path.getmtime))[:-1] + "/"
+        while keepGoing:
+          path = TARGET_DIR + "/audio_{:05d}/".format(i)
+          if not os.path.exists(path):
+            path = os.makedirs(os.path.dirname(TARGET_DIR + "/audio_{:05d}/".format(i)), exist_ok=False)
+            keepGoing = False
+          i += 1
+    if folderType == "survey":
+        while keepGoing:
+          path = "qdas/static/audioResponses/survey_{:03d}/".format(i)
+          if not os.path.exists(path):
+            path = os.makedirs(os.path.dirname("qdas/static/audioResponses/survey_{:03d}/".format(i)), exist_ok=False)
+            keepGoing = False
+          i += 1
+    else:
+        print("no directory name provided")
 
 def saveResponse():
-    TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audioResponses', '*/')), key=os.path.getmtime))[:-1] + "/"
-    print(TARGET_DIR)
+    SURVEY_DIR = str(max(glob.glob(os.path.join('qdas/static/audioResponses', '*/')), key=os.path.getmtime))[:-1] + "/"
+    TARGET_DIR = str(max(glob.glob(os.path.join(SURVEY_DIR, '*/')), key=os.path.getmtime))[:-1] + "/"
     f = request.files['audio_data']
     i = 0
-    while os.path.exists(TARGET_DIR + "audio%s.wav" % i):
+    while os.path.exists(TARGET_DIR + "/audio{:02d}.wav".format(i)):
         i +=1
-    with open(TARGET_DIR + 'audio%s.wav' % i, 'wb') as audio:
+    with open(TARGET_DIR + '/audio{:02d}.wav'.format(i), 'wb') as audio:
         f.save(audio)
         print('file uploaded successfully')
 

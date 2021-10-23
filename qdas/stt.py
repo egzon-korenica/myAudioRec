@@ -1,7 +1,10 @@
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from qdas import db
+from qdas.models import Survey, Responses
 import os
 import subprocess
+
 
 
 APIKEY = "bHu1STJdEgOa12vLPoSeC1VzuvZvV22sigeRg93hixsF"
@@ -24,24 +27,36 @@ def convertToText(dir):
             res = stt.recognize(audio=f, content_type='audio/wav', model='en-US_NarrowbandModel', inactivity_timeout=300).get_result()
             results.append(res)
 
-    #print(results)
-
     text = []
     for file in results:
         for result in file['results']:
             text.append(result['alternatives'][0]['transcript'].rstrip())
+            #print(result['alternatives'][0]['transcript'].rstrip())
 
-    with open(dir + 'output.txt', 'w') as out:
-        out.writelines(text)
+    print(text)
+
+    survey = db.session.query(Survey).order_by(Survey.id.desc()).get(1)
+    responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2])
+    survey.response_ts.append(responses)
+    db.session.commit()
+    #with open(dir + 'output.txt', 'w') as out:
+        #out.writelines(text)
 
 def loopDirs(rootdir):
     paths = []
     for root,dirs,files in os.walk(rootdir):
         if not dirs:
             paths.append(root)
-    return paths
 
-audioDirs = loopDirs('qdas/static/audioResponses/')
-print(audioDirs)
-for audioDir in audioDirs:
-    convertToText(audioDir + '/')
+    row_count = db.session.query(Responses).count()
+    print(row_count)
+    dir_res = len(paths) - row_count
+
+    if dir_res <= 0:
+        print("All responses have been converted")
+
+    if dir_res >= 1:
+        for audioDir in paths[(dir_res - 1):]:
+            convertToText(audioDir + '/')
+
+loopDirs('qdas/static/audioResponses/')

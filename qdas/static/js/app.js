@@ -10,6 +10,8 @@ var AudioContext = window.AudioContext || window.webkitAudioContext;
 var audioContext //audio context to help us record
 // let max = document.getElementsByTagName("audio").length;
 
+document.getElementById("container-1").style.display = "block";
+
 for (let i = 1; i <= max; i++) {
     document.getElementById("recordButton_" + i).addEventListener("click", () => { startRecording(i) });
     document.getElementById("stopButton_" + i).addEventListener("click", () => {stopRecording(i)});
@@ -146,17 +148,26 @@ function createDownloadLink(blob, index) {
     submit.innerHTML = "Submit";
     submit.setAttribute("name", "submitButton");
     submit.setAttribute("id", "submitButton" + index);
-    submit.addEventListener("click", function(event){
-          var xhr=new XMLHttpRequest();
-          xhr.onload=function(e) {
-              if(this.readyState === 4) {
-                  console.log("Server returned: ",e.target.responseText);
-              }
-          };
-          var fd=new FormData();
-          fd.append("audio_data",blob);
-          xhr.open("POST","/response",true);
-          xhr.send(fd);
+    submit.addEventListener("click", function (event) {
+        var xhr=new XMLHttpRequest();
+        xhr.onload=function(e) {
+            if(this.readyState === 4) {
+                console.log("Server returned: ",e.target.responseText);
+            }
+        };
+        var fd=new FormData();
+        fd.append("audio_data",blob);
+        xhr.open("POST","/response",true);
+        xhr.send(fd);
+
+        document.getElementById("container-" + index).style.display = "none";
+        try {
+            document.getElementById("container-" + (index + 1)).style.display = "block";
+        }catch {
+            // Last question answered
+            // handle effects here
+            console.log("LAST QUESTION ANSWERED")
+        }
     })
     li.appendChild(document.createTextNode (" "))//add a space in between
     li.appendChild(submit)//add the submit link to li

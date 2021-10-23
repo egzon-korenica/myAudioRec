@@ -9,17 +9,19 @@
   <body>
     <h1>{{ topic.topic }} - Survey</h1>
     {% for question in questions %}
-      <p><strong>{{ question }}</strong></p>
-      <input type="button" value="Question" onclick="play({{ loop.index }})">
-      <audio id="audio"></audio>
+      <div id="container-{{loop.index}}" style="display: none;">
+        <p><strong>{{ question }}</strong></p>
+        <input type="button" value="Question" onclick="play({{ loop.index }})">
+        <audio id="audio"></audio>
 
-      <div id="controls">
-       <button id="recordButton_{{ loop.index }}" class="record">Record</button>
-       <button id="pauseButton_{{ loop.index }}" class="pause" disabled>Pause</button>
-       <button id="stopButton_{{ loop.index }}" class="stop" disabled>Stop</button>
+        <div id="controls">
+        <button id="recordButton_{{ loop.index }}" class="record">Record</button>
+        <button id="pauseButton_{{ loop.index }}" class="pause" disabled>Pause</button>
+        <button id="stopButton_{{ loop.index }}" class="stop" disabled>Stop</button>
+        </div>
+        <p><strong>Recorded response:</strong></p>
+        <ol id="recordingsList_{{ loop.index }}"></ol>
       </div>
-      <p><strong>Recorded response:</strong></p>
-      <ol id="recordingsList_{{ loop.index }}"></ol>
     {% endfor %}
     <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
     <script>

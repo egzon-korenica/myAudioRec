@@ -12,7 +12,7 @@ from datetime import datetime
 def home():
         return render_template("homepage.html")
 
-@app.route("/response", methods=['POST', 'GET'])
+@app.route("/index", methods=['POST', 'GET'])
 def index():
     #response.audioResponseDir()
     lang = request.args.get('language')
@@ -22,10 +22,10 @@ def index():
     tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace("qdas", ".")
     if request.method == "POST":
         response.saveResponse()
-        return render_template('response.html', request="POST", questions=questions, topic=topic, dir=tdir)
+        return render_template('index.html', request="POST", questions=questions, topic=topic, dir=tdir)
     else:
         response.audioResponseDir("audio")
-        return render_template("response.html", questions=questions, topic=topic, dir=tdir)
+        return render_template("index.html", questions=questions, topic=topic, dir=tdir)
 
 @app.route("/success",methods=["POST", "GET"])
 def success():
@@ -67,10 +67,10 @@ def create_survey():
         text = querys.rows()
         t_text = translation.translate(text)
         translation.addToDatabase(t_text)
+        response.audioResponseDir("survey")
         tts.audioDir()
         TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/"
         tts.createAudioFiles(TARGET_DIR)
-        response.audioResponseDir("survey")
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 
@@ -78,6 +78,11 @@ def create_survey():
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
     return render_template('survey.html', survey = survey)
+
+@app.route("/dashboard/survey/<int:survey_id>/responses")
+def responses(survey_id):
+    survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
+    return render_template('survey.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

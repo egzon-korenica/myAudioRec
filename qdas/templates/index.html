@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
   <body>
-    <h1>{{ topic.topic }} - Survey</h1>
+    <h1 id="surveyTitle">{{ topic.topic }} - Survey</h1>
     {% for question in questions %}
       <div id="container-{{loop.index}}" style="display: none;">
         <p><strong>{{ question }}</strong></p>
@@ -42,13 +42,6 @@
         var audio = document.getElementById("audio" + ctr.toString());
         audio.play();
       }
-
-      /*
-      var recButtons = document.querySelectorAll( "button[id^='recordButton_']" );
-      console.log(recButtons.length);
-      var lastSubmitButton = document.getElementById("submitButton" + recButtons.length);
-      lastSubmitButton.setAttribute('href', '#success')
-      */
 
     </script>
     <script src="https://cdn.rawgit.com/mattdiamond/Recorderjs/08e7abd9/dist/recorder.js"></script>

@@ -21,6 +21,7 @@ class Questions(db.Model):
     q2 = db.Column(db.String(100), nullable=False)
     q3 = db.Column(db.String(100), nullable=False)
 
+
     def __repr__(self):
         return f"Questions('{self.lan_code}','{self.topic}', '{self.q1}', '{self.q2}', '{self.q3}')"
 
@@ -33,6 +34,7 @@ class Responses(db.Model):
     res1 = db.Column(db.String(100), nullable=False)
     res2 = db.Column(db.String(100), nullable=False)
     res3 = db.Column(db.String(100), nullable=False)
+    folder = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
-        return f"Questions('{self.lan_code}','{self.topic}', '{self.q1}', '{self.q2}', '{self.q3}')"
+        return f"Responses('{self.lan_code}','{self.res1}', '{self.res2}', '{self.res3}', '{self.folder}')"

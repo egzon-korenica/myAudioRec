@@ -157,7 +157,7 @@ function createDownloadLink(blob, index) {
         };
         var fd=new FormData();
         fd.append("audio_data",blob);
-        xhr.open("POST","/response",true);
+        xhr.open("POST","/index",true);
         xhr.send(fd);
 
         document.getElementById("container-" + index).style.display = "none";
@@ -167,6 +167,8 @@ function createDownloadLink(blob, index) {
             // Last question answered
             // handle effects here
             console.log("LAST QUESTION ANSWERED")
+            var title = document.getElementById("surveyTitle")
+            title.innerHTML = "Thank you for participating."
         }
     })
     li.appendChild(document.createTextNode (" "))//add a space in between

@@ -36,7 +36,7 @@ def convertToText(dir):
     print(text)
 
     survey = db.session.query(Survey).order_by(Survey.id.desc()).get(1)
-    responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2])
+    responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
     survey.response_ts.append(responses)
     db.session.commit()
     #with open(dir + 'output.txt', 'w') as out:
@@ -48,15 +48,13 @@ def loopDirs(rootdir):
         if not dirs:
             paths.append(root)
 
-    row_count = db.session.query(Responses).count()
-    print(row_count)
-    dir_res = len(paths) - row_count
+    folder_names = [responses.folder for responses in Responses.query.all()]
+    print(folder_names)
 
-    if dir_res <= 0:
-        print("All responses have been converted")
-
-    if dir_res >= 1:
-        for audioDir in paths[(dir_res - 1):]:
+    for audioDir in paths:
+        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
+            print("these responses have been converted")
+        else:
             convertToText(audioDir + '/')
 
 loopDirs('qdas/static/audioResponses/')

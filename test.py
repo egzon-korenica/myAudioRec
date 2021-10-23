@@ -1,5 +1,5 @@
 from qdas import db
-from qdas.models import Questions, Survey
+from qdas.models import Questions, Survey, Responses
 from sqlalchemy.orm import sessionmaker
 import sqlite3
 import glob
@@ -7,19 +7,8 @@ import os
 
 
 
-TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audioResponses', '*/')), key=os.path.getmtime))[:-1] + "/"
-#print(TARGET_DIR)
+responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == 1).all()
 
-rootdir = 'qdas/static/audioResponses/'
+print(os.sep.join(os.path.normpath('qdas/static/audioResponses/survey_001').split(os.sep)[-1:]))
 
-dir = []
-for subdir, dirs, files in os.walk(rootdir):
-    for file in files:
-        path = os.path.join(subdir, file)
-        dir.append(path)
-        
-print(dir, len(dir))
-
-print(os.path.basename(os.path.normpath('qdas/static/audioResponses/survey_001/audio_00003')))
-    
-
+responses = db.session.query(Survey.survey_folder).filter(Survey.id == 1)

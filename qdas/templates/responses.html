@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block content %}
+    <section class="pb-5 header text-center" >
+        <header class="pb-4">
+            <h1 class="display-4">All Responses</h1>
+        </header>
+
+      <table id="data" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Response 1</th>
+            <th>Response 2</th>
+            <th>Response 3</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in responses %}
+            <tr>
+              <td>{{ r.Responses.res1 }}</td>
+              <td>{{ r.Responses.res1 }}</td>
+              <td>{{ r.Responses.res1 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <form>
+
+{% endblock content %}

@@ -14,7 +14,7 @@ authenticator = IAMAuthenticator(APIKEY)
 stt = SpeechToTextV1(authenticator = authenticator)
 stt.set_service_url(URL)
 
-def convertToText(dir):
+def convertToText(dir, survey_id):
     files = []
     for filename in os.listdir(dir):
         if filename.endswith('.wav'):
@@ -35,26 +35,31 @@ def convertToText(dir):
 
     print(text)
 
-    survey = db.session.query(Survey).order_by(Survey.id.desc()).get(1)
-    responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
+    survey = db.session.query(Survey).order_by(Survey.id.desc()).get(survey_id)
+    responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], participant_folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
     survey.response_ts.append(responses)
     db.session.commit()
     #with open(dir + 'output.txt', 'w') as out:
         #out.writelines(text)
 
-def loopDirs(rootdir):
+def loopDirs(rootdir, survey_id):
     paths = []
-    for root,dirs,files in os.walk(rootdir):
+    survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
+    print(survey_dir)
+    for root,dirs,files in os.walk(rootdir + "/" + survey_dir):
         if not dirs:
             paths.append(root)
 
-    folder_names = [responses.folder for responses in Responses.query.all()]
+    folder_names = [responses.participant_folder for responses in Responses.query.all()]
     print(folder_names)
 
     for audioDir in paths:
         if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
             print("these responses have been converted")
         else:
-            convertToText(audioDir + '/')
+            convertToText(audioDir + '/', survey_id)
 
-loopDirs('qdas/static/audioResponses/')
+
+if __name__ == "__main__":
+    loopDirs()
+    convertToText()

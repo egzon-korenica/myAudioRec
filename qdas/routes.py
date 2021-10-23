@@ -2,10 +2,10 @@ import os
 import glob
 import sqlite3
 import requests
-from qdas import app, tts, translation, db, querys, response
+from qdas import app, tts, translation, db, querys, response, stt
 from flask import request, render_template, url_for, redirect
 from qdas.forms import SurveyForm
-from qdas.models import Questions, Survey
+from qdas.models import Questions, Survey, Responses
 from datetime import datetime
 
 @app.route("/")
@@ -26,17 +26,6 @@ def index():
     else:
         response.audioResponseDir("audio")
         return render_template("index.html", questions=questions, topic=topic, dir=tdir)
-
-@app.route("/success",methods=["POST", "GET"])
-def success():
-    if request.method == "POST":
-        response.saveResponse()
-        return "<h2>Survey submitted successfully</h2>"
-    else:
-        print(request.files)
-        return "<h2> not found </h2>"
-
-
 
 @app.route('/background_process_test')
 def background_process_test():
@@ -61,28 +50,34 @@ def create_survey():
     if form.validate_on_submit():
         survey_lang = translation.identifySurveyLang(form.q1.data)
         questions = Questions(lan_code=survey_lang, topic=form.topic.data, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
-        survey = Survey(question_ts=[questions])
+        response.audioResponseDir("survey")
+        sf = str(max(glob.glob(os.path.join('qdas/static/audioResponses/', '*/')), key=os.path.getmtime))[:-1]
+        survey_folder =  os.sep.join(os.path.normpath(sf).split(os.sep)[-1:]) 
+        survey = Survey(question_ts=[questions], survey_folder = survey_folder)
         db.session.add(survey)
         db.session.commit()
         text = querys.rows()
         t_text = translation.translate(text)
         translation.addToDatabase(t_text)
-        response.audioResponseDir("survey")
         tts.audioDir()
         TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/"
         tts.createAudioFiles(TARGET_DIR)
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 
-@app.route("/dashboard/survey/<int:survey_id>")
+@app.route("/dashboard/survey/<int:survey_id>", methods = ["POST", "GET"])
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
+    rootDir = 'qdas/static/audioResponses/'
+    if request.method == "POST":
+        stt.loopDirs(rootDir, survey_id)
+        return redirect(url_for('survey', survey_id = survey_id))
     return render_template('survey.html', survey = survey)
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
 def responses(survey_id):
-    survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
-    return render_template('survey.html')
+    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
+    return render_template('responses.html', responses = responses)
 
 if __name__ == "__main__":
     app.run(debug=True)

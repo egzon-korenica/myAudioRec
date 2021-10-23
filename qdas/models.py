@@ -4,11 +4,12 @@ from qdas import db
 class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    survey_folder = db.Column(db.String(100), nullable=False)
     question_ts = db.relationship('Questions', lazy=True)
     response_ts = db.relationship('Responses', lazy=True)
 
     def __repr__(self):
-        return f"Survey('{self.id}')"
+        return f"Survey('{self.id}','{self.date_posted}', '{self.survey_folder}')"
 
 
 class Questions(db.Model):
@@ -34,7 +35,7 @@ class Responses(db.Model):
     res1 = db.Column(db.String(100), nullable=False)
     res2 = db.Column(db.String(100), nullable=False)
     res3 = db.Column(db.String(100), nullable=False)
-    folder = db.Column(db.String(100), nullable=False)
+    participant_folder = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
         return f"Responses('{self.lan_code}','{self.res1}', '{self.res2}', '{self.res3}', '{self.folder}')"

@@ -5,19 +5,36 @@
     <title>Audio Recorder</title>
     <!--addpipe.com -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <style media="screen">
+      body {
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    background-color: #d9fadc;
+    }
+    </style>
   </head>
   <body>
-    <h1 id="surveyTitle">{{ topic.topic }} - Survey</h1>
+    <h1 id="surveyTitle" class="text-center" style="font-size: 70px; margin-bottom: 3em;">{{ topic.topic }} </h1>
     {% for question in questions %}
-      <div id="container-{{loop.index}}" style="display: none;">
-        <p><strong>{{ question }}</strong></p>
-        <input type="button" value="Question" onclick="play({{ loop.index }})">
-        <audio id="audio"></audio>
+      <div id="container-{{loop.index}}" style="display: none;" class="text-center">
+        <div style="border: solid 1px; padding: 30px; border-radius: 25px;">
+          <p style="font-size: 30px;"><strong>{{ question }}</strong><img src="static/img/sound1.png" style="height:30px; width:30px; margin-left: 5px;" onclick="play({{ loop.index }})"></p>
+          <audio id="audio"></audio>
 
-        <div id="controls">
-        <button id="recordButton_{{ loop.index }}" class="record">Record</button>
-        <button id="pauseButton_{{ loop.index }}" class="pause" disabled>Pause</button>
-        <button id="stopButton_{{ loop.index }}" class="stop" disabled>Stop</button>
+          <div id="controls">
+          <button id="recordButton_{{ loop.index }}" class="record" style="background: url('static/img/record.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+          <button id="pauseButton_{{ loop.index }}" class="pause" disabled style="background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+          <button id="stopButton_{{ loop.index }}" class="stop" disabled style="background: url('static/img/stop.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+          </div>
         </div>
         <p><strong>Recorded response:</strong></p>
         <ol id="recordingsList_{{ loop.index }}"></ol>

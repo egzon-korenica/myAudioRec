@@ -88,11 +88,11 @@ function pauseRecording(index){
     if (rec.recording){
         //pause
         rec.stop();
-        document.getElementById("pauseButton_" + index).innerHTML="Resume";
+        document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('static/img/play.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
     }else{
         //resume
         rec.record()
-        document.getElementById("pauseButton_" + index).innerHTML="Pause";
+        document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
 
     }
 }
@@ -108,7 +108,7 @@ function stopRecording(index) {
     document.getElementById("pauseButton_" + index).disabled = true
 
     //reset button just in case the recording is stopped while paused
-    document.getElementById("pauseButton_" + index).innerHTML="Pause";
+    document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
 
     //tell the recorder to stop the recording
     rec.stop();
@@ -168,7 +168,8 @@ function createDownloadLink(blob, index) {
             // handle effects here
             console.log("LAST QUESTION ANSWERED")
             var title = document.getElementById("surveyTitle")
-            title.innerHTML = "Thank you for participating."
+            title.innerHTML = "Thank you for participating"
+            //document.body.style.background = #c7f2d2;
         }
     })
     li.appendChild(document.createTextNode (" "))//add a space in between

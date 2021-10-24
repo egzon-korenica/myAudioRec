@@ -1,6 +1,31 @@
 {% extends "layout.html" %}
 {% block content %}
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <script type="text/javascript">
+     google.charts.load("current", {packages:["corechart"]});
+     google.charts.setOnLoadCallback(drawChart);
+     function drawChart() {
+       var data = google.visualization.arrayToDataTable([
+         ['Tone', 'Frequence'],
+        {% for key, value in ta_data.items() %}
+    				{% if value is string %}
+    					['{{ key }}', '{{ value }}'],
+    				{% else %}
+    					['{{ key }}', {{ value }}],
+    				{% endif %}
+  			{% endfor %}
+       ]);
 
+       var options = {
+         title: 'General Tone Analysis made for this Survey',
+         is3D: true,
+         backgroundColor: '#e9ecef'
+       };
+
+       var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+       chart.draw(data, options);
+     }
+</script>
     <div class="container">
       <div class="row">
         <div class="col">
@@ -17,9 +42,6 @@
           <div class="jumbotron">
             {% for k in survey %}
               <h2 class="display-4"><a class="article-title" href="{{ url_for('responses', survey_id=k.Survey.id) }}">Responses</a></h2>
-              <p class="h5">{{ k.Questions.q1 }}</p>
-              <p class="h5">{{ k.Questions.q2 }}</p>
-              <p class="h5">{{ k.Questions.q3 }}</p>
 
               <form class="generateResponse mt-3" action="{{ url_for('survey', survey_id=k.Survey.id)}}" method="post">
                 <p><button type="submit" class="btn btn-default">Generate Survey</button></p>
@@ -32,9 +54,7 @@
           <div class="jumbotron">
             {% for k in survey %}
               <h2 class="display-4">Tone Analysis</h2>
-              <p class="h5">{{ k.Questions.q1 }}</p>
-              <p class="h5">{{ k.Questions.q2 }}</p>
-              <p class="h5">{{ k.Questions.q3 }}</p>
+              <div id="piechart_3d" style="width: 800px; height: 500px;"></div>
             {% endfor %}
           </div>
         </div>
@@ -42,14 +62,12 @@
           <div class="jumbotron">
             {% for k in survey %}
               <h2 class="display-4">Keyword Analysis</h2>
-              <p class="h5">{{ k.Questions.q1 }}</p>
-              <p class="h5">{{ k.Questions.q2 }}</p>
-              <p class="h5">{{ k.Questions.q3 }}</p>
             {% endfor %}
           </div>
         </div>
       </div>
     </div>
+
 
 
 {% endblock content %}

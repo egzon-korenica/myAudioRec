@@ -27,18 +27,25 @@ def convertToText(dir, survey_id):
             res = stt.recognize(audio=f, content_type='audio/wav', model='en-US_NarrowbandModel', inactivity_timeout=300).get_result()
             results.append(res)
 
+    #print(results)
+
     text = []
     for file in results:
+        record = []
         for result in file['results']:
-            text.append(result['alternatives'][0]['transcript'].rstrip())
-            #print(result['alternatives'][0]['transcript'].rstrip())
+            record.append(result['alternatives'][0]['transcript'].rstrip())
+        full_sentence = (" ".join(record))
+        text.append(full_sentence)
 
-    print(text)
+    print(text, len(text))
 
     survey = db.session.query(Survey).order_by(Survey.id.desc()).get(survey_id)
-    responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], participant_folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
-    survey.response_ts.append(responses)
-    db.session.commit()
+    if len(text) == 3:
+        responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], participant_folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-1:]))
+        survey.response_ts.append(responses)
+        db.session.commit()
+    else:
+        print("Some of the responses are missing for this participant")
     #with open(dir + 'output.txt', 'w') as out:
         #out.writelines(text)
 
@@ -54,7 +61,7 @@ def loopDirs(rootdir, survey_id):
     print(folder_names)
 
     for audioDir in paths:
-        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
+        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-1:]) in folder_names:
             print("these responses have been converted")
         else:
             convertToText(audioDir + '/', survey_id)

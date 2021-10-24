@@ -2,8 +2,8 @@ import os
 import glob
 import sqlite3
 import requests
-from qdas import app, tts, translation, db, querys, response, stt
-from flask import request, render_template, url_for, redirect
+from qdas import app, tts, translation, db, querys, response, stt, toneAnalysis
+from flask import request, render_template, url_for, redirect, jsonify
 from qdas.forms import SurveyForm
 from qdas.models import Questions, Survey, Responses
 from datetime import datetime
@@ -52,7 +52,7 @@ def create_survey():
         questions = Questions(lan_code=survey_lang, topic=form.topic.data, q1=form.q1.data, q2=form.q2.data, q3=form.q3.data)
         response.audioResponseDir("survey")
         sf = str(max(glob.glob(os.path.join('qdas/static/audioResponses/', '*/')), key=os.path.getmtime))[:-1]
-        survey_folder =  os.sep.join(os.path.normpath(sf).split(os.sep)[-1:]) 
+        survey_folder =  os.sep.join(os.path.normpath(sf).split(os.sep)[-1:])
         survey = Survey(question_ts=[questions], survey_folder = survey_folder)
         db.session.add(survey)
         db.session.commit()
@@ -69,10 +69,11 @@ def create_survey():
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
     rootDir = 'qdas/static/audioResponses/'
+    ta_data = toneAnalysis.getToneAnalysisResults()
     if request.method == "POST":
         stt.loopDirs(rootDir, survey_id)
         return redirect(url_for('survey', survey_id = survey_id))
-    return render_template('survey.html', survey = survey)
+    return render_template('survey.html', survey = survey, ta_data = ta_data)
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
 def responses(survey_id):

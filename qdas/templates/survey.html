@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
+
+
+<script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
+<script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
    <script type="text/javascript">
      google.charts.load("current", {packages:["corechart"]});
@@ -24,7 +28,33 @@
 
        var chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
        chart.draw(data, options);
+
      }
+</script>
+<script>
+  anychart.onDocumentReady(function() {
+      var data = [
+      {% for key, value in k_data.items() %}
+          {% if value is string %}
+            ['{{ key }}', '{{ value }}'],
+          {% else %}
+            ['{{ key }}', {{ value }}],
+          {% endif %}
+      {% endfor %}
+      ]
+      var chart = anychart.tagCloud(data);
+      chart.title('Most frequent keywords')
+     // set an array of angles at which the words will be laid out
+     chart.angles([0])
+     // enable a color range
+     chart.colorRange(true);
+     // set the color range length
+     chart.colorRange().length('80%');
+
+     // display the word cloud chart
+     chart.container("word_cloud");
+     chart.draw();
+  });
 </script>
     <div class="container">
       <div class="row">
@@ -54,7 +84,7 @@
           <div class="jumbotron">
             {% for k in survey %}
               <h2 class="display-4">Tone Analysis</h2>
-              <div id="piechart_3d" style="width: 800px; height: 500px;"></div>
+              <div id="piechart_3d" style="width: 1000px; height: 500px;"></div>
             {% endfor %}
           </div>
         </div>
@@ -62,12 +92,10 @@
           <div class="jumbotron">
             {% for k in survey %}
               <h2 class="display-4">Keyword Analysis</h2>
+              <div id="word_cloud" style="width: 1000px; height: 500px;">
             {% endfor %}
           </div>
         </div>
       </div>
     </div>
-
-
-
 {% endblock content %}

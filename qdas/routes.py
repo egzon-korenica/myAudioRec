@@ -2,7 +2,8 @@ import os
 import glob
 import sqlite3
 import requests
-from qdas import app, tts, translation, db, querys, response, stt, toneAnalysis
+import json
+from qdas import app, tts, translation, db, querys, response, stt, toneAnalysis, nlu
 from flask import request, render_template, url_for, redirect, jsonify
 from qdas.forms import SurveyForm
 from qdas.models import Questions, Survey, Responses
@@ -70,15 +71,17 @@ def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
     rootDir = 'qdas/static/audioResponses/'
     ta_data = toneAnalysis.getToneAnalysisResults()
+    k_data = nlu.getFrequentKeywords()
     if request.method == "POST":
         stt.loopDirs(rootDir, survey_id)
         return redirect(url_for('survey', survey_id = survey_id))
-    return render_template('survey.html', survey = survey, ta_data = ta_data)
+    return render_template('survey.html', survey = survey, ta_data = ta_data, k_data = k_data)
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
 def responses(survey_id):
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
     return render_template('responses.html', responses = responses)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

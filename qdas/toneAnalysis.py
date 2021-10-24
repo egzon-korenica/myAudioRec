@@ -1,8 +1,9 @@
+import json
 from ibm_watson import ToneAnalyzerV3
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from qdas import db
 from qdas.models import Survey, Responses
-import json
+
 
 
 apikey = "KobRgKpaAwmvjjOmKoZIxPZcQ33f0Y3ap1Y_Rz3tX4e7"

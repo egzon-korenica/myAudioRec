@@ -50,6 +50,7 @@
       var allPauseButtons = document.getElementsByClassName("pause");
       var allStopButtons = document.getElementsByClassName("stop");
 
+      // change audio ids
       for (var i=0, max=allAudio.length; i < max; i++) {
         allAudio[i].setAttribute('src', '{{ dir }}' + lang + '0' + i.toString() + '.mp3');
         allAudio[i].setAttribute('id', 'audio' + i.toString())

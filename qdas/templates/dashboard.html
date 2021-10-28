@@ -1,25 +1,71 @@
 {% extends "layout.html" %}
 {% block content %}
+    <style media="screen">
+            .modal-backdrop {
+          display: none;
+          z-index: 1040 !important;
+      }
+
+      .modal-content {
+          margin: 2px auto;
+          z-index: 1100 !important;
+      }
+    </style>
     <section class="pb-5 header text-center" >
                 <header class="pb-4">
                     <h1 class="display-4">All Surveys</h1>
                 </header>
             <div class="row">
-            {% for survey in surveys %}
+            {% for survey in surveys.items %}
                       <div class="col-sm-5">
                         <div class="card effect-5">
-                          <div class="card-body p-5">
-                            <h2 class="h5"><a class="article-title" href="{{ url_for('survey', survey_id=survey.Survey.id) }}">{{ survey.Questions.topic }}</a></h2>
-                            <p class="font-italic text-muted">{{ survey.Questions.q1 }}</p>
-                            <p class="font-italic text-muted">{{ survey.Questions.q2 }}</p>
-                            <p class="font-italic text-muted">{{ survey.Questions.q3 }}</p>
+                          <div class="card-body">
+                            <h2 class="card-title mt-3"><a class="article-title" href="{{ url_for('survey', survey_id=survey.Survey.id) }}">{{ survey.topic }}</a></h2>
+                            <p class="font-italic text-muted">{{ survey.q1 }}</p>
+                            <p class="font-italic text-muted">{{ survey.q2 }}</p>
+                            <p class="font-italic text-muted">{{ survey.q3 }}</p>
+                          </div>
+                          <div class="card-footer text-muted">
+                            <p> Posted on {{ survey.Survey.date_posted.date() }}
+                              <button class="btn float-right" data-toggle="modal" data-target="#deleteModal{{ survey.Survey.id}}" style="background: url('static/img/delete.png') no-repeat; background-position: center; background-size: 28px 28px; height:35px; width:45px; background-color: #ffffff; border: solid 1px #d0d0d0"></button>
+                            </p>
                           </div>
                         </div>
                       </div>
+
+                      <!-- Modal -->
+                    <div class="modal fade" id="deleteModal{{ survey.Survey.id }}" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="deleteModalLabel">Delete Survey?</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                              <span aria-hidden="true">&times;</span>
+                            </button>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <form action="{{ url_for('delete_survey', survey_id = survey.Survey.id, survey_folder = survey.Survey.survey_folder) }}" method="post">
+                              <input type="submit" class="btn btn-danger" value="Delete">
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
             {% endfor %}
             </div>
     </section>
+    {% for page_num in surveys.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if surveys.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('dashboard', page=page_num) }}">{{ page_num }} </a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('dashboard', page=page_num) }}">{{ page_num }} </a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
+    {% endfor %}
 
-    <form>
 
 {% endblock content %}

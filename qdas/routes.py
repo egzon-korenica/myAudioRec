@@ -3,6 +3,7 @@ import glob
 import sqlite3
 import requests
 import json
+import shutil
 from qdas import app, tts, translation, db, querys, response, stt, toneAnalysis, nlu
 from flask import request, render_template, url_for, redirect, jsonify
 from qdas.forms import SurveyForm
@@ -41,7 +42,14 @@ def translate():
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id == Questions.survey_id).order_by(Survey.id.desc()).all()
+    page = request.args.get('page', 1, type=int)
+    surveys = Survey.query\
+    .join(Questions, Survey.id==Questions.survey_id)\
+    .add_columns(Survey.id, Questions.topic, Questions.q1, Questions.q2, Questions.q3)\
+    .filter(Survey.id==Questions.survey_id)\
+    .filter(Questions.lan_code=="en")\
+    .order_by(Survey.id.desc())\
+    .paginate(page=page, per_page = 4)
     return render_template("dashboard.html", surveys = surveys)
 
 
@@ -66,16 +74,30 @@ def create_survey():
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 
+@app.route("/dashboard/delete/<int:survey_id>/<survey_folder>", methods = ["POST"])
+def delete_survey(survey_id, survey_folder):
+    survey = Survey.query.get_or_404(survey_id)
+    db.session.delete(survey)
+    db.session.commit()
+    shutil.rmtree('qdas/static/audios/' + survey_folder, ignore_errors=True)
+    shutil.rmtree('qdas/static/audioResponses/' + survey_folder, ignore_errors=True)
+    return redirect(url_for('dashboard'))
+
 @app.route("/dashboard/survey/<int:survey_id>", methods = ["POST", "GET"])
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
     rootDir = 'qdas/static/audioResponses/'
     ta_data = toneAnalysis.getToneAnalysisResults()
     k_data = nlu.getFrequentKeywords()
+    overall_data = nlu.getOverallKA()
+    nr_responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).count()
+    nr_participants = stt.nrOfAudioResponses(rootDir, survey_id)
+    nr_convLeft = nr_participants - nr_responses
     if request.method == "POST":
         stt.loopDirs(rootDir, survey_id)
         return redirect(url_for('survey', survey_id = survey_id))
-    return render_template('survey.html', survey = survey, ta_data = ta_data, k_data = k_data)
+    return render_template('survey.html', survey=survey, ta_data =ta_data,\
+                        k_data=k_data, nr_responses=nr_responses, nr_convLeft=nr_convLeft, overall_data=overall_data)
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
 def responses(survey_id):

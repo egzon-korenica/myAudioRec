@@ -47,9 +47,9 @@ def audioDir():
     i=1
     keepGoing=True
     while keepGoing:
-      path = "qdas/static/audios/audio_{}/".format(i)
+      path = "qdas/static/audios/survey_{:03d}/".format(i)
       if not os.path.exists(path):
-        os.makedirs(os.path.dirname("qdas/static/audios/audio_{}/".format(i)), exist_ok=False)
+        os.makedirs(os.path.dirname("qdas/static/audios/survey_{:03d}/".format(i)), exist_ok=False)
         keepGoing = False
       i += 1
 

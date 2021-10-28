@@ -5,8 +5,8 @@ class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     survey_folder = db.Column(db.String(100), nullable=False)
-    question_ts = db.relationship('Questions', lazy=True)
-    response_ts = db.relationship('Responses', lazy=True)
+    question_ts = db.relationship('Questions', cascade='all,delete', lazy=True)
+    response_ts = db.relationship('Responses', cascade='all,delete', lazy=True)
 
     def __repr__(self):
         return f"Survey('{self.id}','{self.date_posted}', '{self.survey_folder}')"

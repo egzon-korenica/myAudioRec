@@ -62,16 +62,35 @@ def getKeywordAnalysisResults():
     k_data = getKeywords()
     for k,v in k_data.items():
         k_data[k] = float(sum(v)/len(v))
-
     return k_data
+
 
 def getFrequentKeywords():
     k_data = getKeywords()
     for k,v in k_data.items():
         k_data[k] = int(len(v))
-    print(k_data)
     return k_data
 
+def getOverallKA():
+    relevance = getKeywordAnalysisResults()
+    freq = getFrequentKeywords()
+    l = []
+    ds = [relevance, freq]
+    d = {}
+    for k in relevance.keys():
+        d[k] = list(d[k] for d in ds)
+
+    res = []
+    for key, val in d.items():
+        res.append([key] + val)
+    res_j = json.dumps(res)
+    print(res_j)
+    return res_j
+
+
+
 if __name__ == "__main__":
+    getKeywords()
     getKeywordAnalysisResults()
     getFrequentKeywords()
+    getOverallKA()

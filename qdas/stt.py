@@ -66,6 +66,11 @@ def loopDirs(rootdir, survey_id):
         else:
             convertToText(audioDir + '/', survey_id)
 
+def nrOfAudioResponses(rootdir, survey_id):
+    survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
+    nr_audio =  len(next(os.walk(rootdir + "/" + survey_dir))[1])
+    return nr_audio
+
 
 if __name__ == "__main__":
     loopDirs()

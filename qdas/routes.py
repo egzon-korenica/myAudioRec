@@ -101,8 +101,9 @@ def survey(survey_id):
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
 def responses(survey_id):
+    kws = nlu.getKeywordEmotion()
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
-    return render_template('responses.html', responses = responses)
+    return render_template('responses.html', responses = responses, kws = kws)
 
 
 if __name__ == "__main__":

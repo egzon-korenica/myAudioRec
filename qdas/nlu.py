@@ -17,7 +17,7 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
 
 natural_language_understanding.set_service_url(url)
 
-def getKeywords():
+def getKeywords(option):
 
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == 1).all()
     r_texts = []
@@ -31,7 +31,7 @@ def getKeywords():
         response = natural_language_understanding.analyze(
             text = r,
             features=Features(
-                keywords=KeywordsOptions(emotion=False, sentiment=False,
+                keywords=KeywordsOptions(emotion=True, sentiment=False,
                                          limit=50))).get_result()
 
         enc = json.dumps(response, indent=2)
@@ -43,11 +43,14 @@ def getKeywords():
     key_dict = {}
 
     for dec in decs:
+        #print(dec)
         for keyword in dec['keywords']:
-                if keyword['relevance'] > 0.5:
+                if option == "frequency" and keyword['relevance'] > 0.5:
                     kws.append(keyword['text'])
                     rels.append(keyword['relevance'])
-
+                if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
+                    kws.append(keyword['text'])
+                    rels.append(max(keyword['emotion']))
 
     for value, line in zip(rels, kws):
         if line in key_dict:
@@ -58,15 +61,16 @@ def getKeywords():
     return key_dict
 
 
+
 def getKeywordAnalysisResults():
-    k_data = getKeywords()
+    k_data = getKeywords("frequency")
     for k,v in k_data.items():
         k_data[k] = float(sum(v)/len(v))
     return k_data
 
 
 def getFrequentKeywords():
-    k_data = getKeywords()
+    k_data = getKeywords("frequency")
     for k,v in k_data.items():
         k_data[k] = int(len(v))
     return k_data
@@ -84,13 +88,17 @@ def getOverallKA():
     for key, val in d.items():
         res.append([key] + val)
     res_j = json.dumps(res)
-    print(res_j)
     return res_j
 
-
+def getKeywordEmotion():
+    emotions_dict = getKeywords("emotion")
+    new_dict = {i:str(j[0]) for i,j in emotions_dict.items()}
+    print(new_dict)
+    return new_dict
 
 if __name__ == "__main__":
     getKeywords()
     getKeywordAnalysisResults()
     getFrequentKeywords()
     getOverallKA()
+    getKeywordEmotion()

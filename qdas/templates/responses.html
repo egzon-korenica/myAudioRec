@@ -1,5 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
+    <script type="text/javascript">
+      var keywords = {{ kws|safe }}
+    </script>
     <section class="pb-5 header text-center" >
         <header class="pb-4">
             <h1 class="display-4">All Responses</h1>
@@ -24,7 +27,4 @@
         </tbody>
       </table>
     </section>
-
-    <form>
-
 {% endblock content %}

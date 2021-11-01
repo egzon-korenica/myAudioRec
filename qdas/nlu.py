@@ -17,9 +17,9 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
 
 natural_language_understanding.set_service_url(url)
 
-def getKeywords(option):
+def getKeywords(option, survey_id):
 
-    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == 1).all()
+    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
     r_texts = []
     for index, response in enumerate(responses):
         r_texts.append(response.Responses.res1)
@@ -43,7 +43,6 @@ def getKeywords(option):
     key_dict = {}
 
     for dec in decs:
-        #print(dec)
         for keyword in dec['keywords']:
                 if option == "frequency" and keyword['relevance'] > 0.5:
                     kws.append(keyword['text'])
@@ -62,22 +61,22 @@ def getKeywords(option):
 
 
 
-def getKeywordAnalysisResults():
-    k_data = getKeywords("frequency")
+def getKeywordAnalysisResults(survey_id):
+    k_data = getKeywords("frequency", survey_id)
     for k,v in k_data.items():
         k_data[k] = float(sum(v)/len(v))
     return k_data
 
 
-def getFrequentKeywords():
-    k_data = getKeywords("frequency")
+def getFrequentKeywords(survey_id):
+    k_data = getKeywords("frequency", survey_id)
     for k,v in k_data.items():
         k_data[k] = int(len(v))
     return k_data
 
-def getOverallKA():
-    relevance = getKeywordAnalysisResults()
-    freq = getFrequentKeywords()
+def getOverallKA(survey_id):
+    relevance = getKeywordAnalysisResults(survey_id)
+    freq = getFrequentKeywords(survey_id)
     l = []
     ds = [relevance, freq]
     d = {}
@@ -90,13 +89,24 @@ def getOverallKA():
     res_j = json.dumps(res)
     return res_j
 
-def getKeywordEmotion():
-    emotions_dict = getKeywords("emotion")
+def getKeywordEmotion(survey_id):
+    emotions_dict = getKeywords("emotion", survey_id)
     new_dict = {i:str(j[0]) for i,j in emotions_dict.items()}
     print(new_dict)
     return new_dict
 
+def getAverageRelevance(listoflist):
+    relevances = []
+    data = json.loads(listoflist)
+    for l in data:
+        relevances.append(l[1])
+    avg = sum(relevances)/len(relevances)
+    avgf = '{:.5f}'.format(avg)
+
+    return avgf
+
 if __name__ == "__main__":
+    getAverageRelevance()
     getKeywords()
     getKeywordAnalysisResults()
     getFrequentKeywords()

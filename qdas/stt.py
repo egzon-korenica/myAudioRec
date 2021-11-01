@@ -37,11 +37,9 @@ def convertToText(dir, survey_id):
         full_sentence = (" ".join(record))
         text.append(full_sentence)
 
-    print(text, len(text))
-
     survey = db.session.query(Survey).order_by(Survey.id.desc()).get(survey_id)
     if len(text) == 3:
-        responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], participant_folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-1:]))
+        responses = Responses(lan_code="en", res1=text[0], res2=text[1], res3=text[2], participant_folder = os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
         survey.response_ts.append(responses)
         db.session.commit()
     else:
@@ -52,7 +50,7 @@ def convertToText(dir, survey_id):
 def loopDirs(rootdir, survey_id):
     paths = []
     survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
-    print(survey_dir)
+
     for root,dirs,files in os.walk(rootdir + "/" + survey_dir):
         if not dirs:
             paths.append(root)
@@ -61,7 +59,8 @@ def loopDirs(rootdir, survey_id):
     print(folder_names)
 
     for audioDir in paths:
-        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-1:]) in folder_names:
+        print(audioDir)
+        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
             print("these responses have been converted")
         else:
             convertToText(audioDir + '/', survey_id)

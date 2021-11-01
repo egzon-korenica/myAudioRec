@@ -15,8 +15,8 @@ ta.set_service_url(url)
 
 
 
-def getToneAnalysis():
-    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == 1).all()
+def getToneAnalysis(survey_id):
+    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
     r_texts = []
     for index, response in enumerate(responses):
         r_texts.append(response.Responses.res1)
@@ -49,8 +49,8 @@ def getToneAnalysis():
 
     return tones_dict
 
-def getToneAnalysisResults():
-    ta_data = getToneAnalysis()
+def getToneAnalysisResults(survey_id):
+    ta_data = getToneAnalysis(survey_id)
     for k,v in ta_data.items():
         ta_data[k] = int(len(v))
     print(ta_data)

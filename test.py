@@ -20,17 +20,15 @@ dst = "qdas/static/audioResponses/survey_001/audio_00002/audio01.mp3"
 #print(len(next(os.walk('qdas/static/audioResponses/survey_001'))[1]))
 
 
-surveys = db.session.query(Survey, Questions).filter(Questions.lan_code=="en").filter(Survey.id ==  Questions.survey_id).order_by(Survey.id.desc()).all()
+listoflist = [["meeting today", 0.983223, 2], ["HESITATION fail", 0.842578, 2], ["October", 0.788983, 2], ["HESITATION ache", 0.95254, 2], ["birthday", 0.919812, 2]]
 
-surveys2 = Survey.query\
-    .join(Questions, Survey.id==Questions.survey_id)\
-    .add_columns(Survey.id, Questions.topic, Questions.q1, Questions.q2, Questions.q3)\
-    .filter(Survey.id==Questions.survey_id)\
-    .filter(Questions.lan_code=="en")\
-    .order_by(Survey.id.desc())\
-    .paginate(page=1, per_page = 4)
+relevances = []
+for l in listoflist:
+	relevances.append(l[1])
+	
+avg = sum(relevances)/len(relevances)
 
+avgf = '{:.5f}'.format(avg)
 
-for survey in surveys2.items:
-
-	print(survey.Survey.id)
+print(avgf)
+	

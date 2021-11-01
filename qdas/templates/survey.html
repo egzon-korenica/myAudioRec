@@ -1,9 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
 
-
-<script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
-<script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
    <script type="text/javascript">
      google.charts.load("current", {packages:["corechart"]});
@@ -37,64 +34,6 @@
 
        $("text:contains(" + options.title + ")").attr({'x':'300', 'y':'60'})
      }
-</script>
-<script>
-  anychart.onDocumentReady(function() {
-      var data = [
-      {% for key, value in k_data.items() %}
-          {% if value is string %}
-            ['{{ key }}', '{{ value }}'],
-          {% else %}
-            ['{{ key }}', {{ value }}],
-          {% endif %}
-      {% endfor %}
-      ]
-      var chart = anychart.tagCloud(data);
-      chart.title('Most frequent keywords')
-     // set an array of angles at which the words will be laid out
-     chart.angles([0])
-     // enable a color range
-     chart.colorRange(false);
-     // set the color range length
-     chart.colorRange().length('80%');
-
-     // display the word cloud chart
-     chart.container("word_cloud");
-     chart.background().fill({
-        keys: ["#f2f2f2"]
-      });
-
-      chart.background().stroke("1.5 grey");
-
-     chart.draw();
-  });
-</script>
-<script type="text/javascript">
-
-  anychart.onDocumentReady(function() {
-    chart = anychart.cartesian();
-
-    data = {{ overall_data|safe }}
-
-
-    // add a marker seris
-    chart.bubble(data);
-
-    // set chart title
-    chart.title("Bubble chart according to relevance and frequency of Keywords");
-
-    // set axes titles
-    chart.xAxis().title("Keyword");
-    chart.yAxis().title("Frequency");
-    chart.background().stroke("1.5 grey");
-    chart.background().fill({
-       keys: ["#f2f2f2"]
-     });
-    // draw
-    chart.container("bubble_chart");
-    chart.draw();
-  });
-
 </script>
     <div class="container">
       <div class="row">
@@ -133,11 +72,12 @@
         <div class="col">
           <div class="jumbotron">
             {% for k in survey %}
-              <h2 class="display-4">Keyword Analysis</h2>
-              <div id="word_cloud" style="width: 1000px; height: 500px; margin-bottom:5px;"></div>
-              <div id="bubble_chart" style="width: 1000px; height: 500px;"></div>
+              <h2 class="display-4"><a class="article-title" href="{{ url_for('keywords', survey_id=k.Survey.id) }}">Keyword Analysis</a></h2>
+              <p>Number of keywords for {{ nr_responses }} submitted responses: {{ k_data.keys()|length }}</p>
+              <p>Average relevance score of the keywords: {{ avg_rel }}</p>
             {% endfor %}
           </div>
       </div>
     </div>
+  </div>
 {% endblock content %}

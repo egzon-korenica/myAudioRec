@@ -86,10 +86,11 @@ def delete_survey(survey_id, survey_folder):
 @app.route("/dashboard/survey/<int:survey_id>", methods = ["POST", "GET"])
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
-    rootDir = 'qdas/static/audioResponses/'
-    ta_data = toneAnalysis.getToneAnalysisResults()
-    k_data = nlu.getFrequentKeywords()
-    overall_data = nlu.getOverallKA()
+    rootDir = 'qdas/static/audioResponses'
+    ta_data = toneAnalysis.getToneAnalysisResults(survey_id)
+    k_data = nlu.getFrequentKeywords(survey_id)
+    overall_data = nlu.getOverallKA(survey_id)
+    #avg_rel = nlu.getAverageRelevance(overall_data)
     nr_responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).count()
     nr_participants = stt.nrOfAudioResponses(rootDir, survey_id)
     nr_convLeft = nr_participants - nr_responses
@@ -97,14 +98,24 @@ def survey(survey_id):
         stt.loopDirs(rootDir, survey_id)
         return redirect(url_for('survey', survey_id = survey_id))
     return render_template('survey.html', survey=survey, ta_data =ta_data,\
-                        k_data=k_data, nr_responses=nr_responses, nr_convLeft=nr_convLeft, overall_data=overall_data)
+                        k_data=k_data, nr_responses=nr_responses, nr_convLeft=nr_convLeft, overall_data=overall_data) #avg_rel=avg_rel)
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
 def responses(survey_id):
-    kws = nlu.getKeywordEmotion()
+    kws = nlu.getKeywordEmotion(survey_id)
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
     return render_template('responses.html', responses = responses, kws = kws)
 
+@app.route("/dashboard/survey/<int:survey_id>/keywords")
+def keywords(survey_id):
+    survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(Questions.lan_code=="en").all()
+    k_data = nlu.getFrequentKeywords(survey_id)
+    overall_data = nlu.getOverallKA(survey_id)
+    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data)
+
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True,
+         host='127.0.0.1',
+         port=5000,
+         threaded=True)

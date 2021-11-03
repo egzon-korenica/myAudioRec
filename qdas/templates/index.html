@@ -20,7 +20,15 @@
     transform: translateX(-50%) translateY(-50%);
     background-color: #d9fadc;
     }
+
+    .grouping{
+        display: inline-block;
+        text-align: center;
+      }
     </style>
+    <script type="text/javascript">
+      var mytoken = "{{ csrf_token() }}";
+    </script>
   </head>
   <body>
     <h1 id="surveyTitle" class="text-center" style="font-size: 70px; margin-bottom: 3em;">{{ topic.topic }} </h1>
@@ -31,9 +39,18 @@
           <audio id="audio"></audio>
 
           <div id="controls">
-          <button id="recordButton_{{ loop.index }}" class="record" style="background: url('static/img/record.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
-          <button id="pauseButton_{{ loop.index }}" class="pause" disabled style="background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
-          <button id="stopButton_{{ loop.index }}" class="stop" disabled style="background: url('static/img/stop.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+            <div class="grouping">
+              <button id="recordButton_{{ loop.index }}" class="record" style="background: url('static/img/record.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+              <p>Record</p>
+            </div>
+            <div class="grouping">
+              <button id="pauseButton_{{ loop.index }}" class="pause" disabled style="background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+              <p>Pause</p>
+            </div>
+            <div class="grouping">
+              <button id="stopButton_{{ loop.index }}" class="stop" disabled style="background: url('static/img/stop.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+              <p>Stop</p>
+            </div>
           </div>
         </div>
         <p><strong>Recorded response:</strong></p>

@@ -1,8 +1,10 @@
+import json
 from datetime import datetime
 from qdas import db
 
+
 class Survey(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     survey_folder = db.Column(db.String(100), nullable=False)
     question_ts = db.relationship('Questions', cascade='all,delete', lazy=True)
@@ -13,29 +15,24 @@ class Survey(db.Model):
 
 
 class Questions(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     lan_code = db.Column(db.String(3), nullable=False)
     topic = db.Column(db.String(200), nullable=False)
-    q1 = db.Column(db.Text(), nullable=False)
-    q2 = db.Column(db.Text(), nullable=False)
-    q3 = db.Column(db.Text(), nullable=False)
-
+    questions = db.Column(db.JSON(), nullable=False)
 
     def __repr__(self):
-        return f"Questions('{self.lan_code}','{self.topic}', '{self.q1}', '{self.q2}', '{self.q3}')"
+        return f"Questions('{self.lan_code}','{self.topic}','[" + ", ".join(self.questions) + "]')"
 
 
 class Responses(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'), nullable=False)
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     lan_code = db.Column(db.String(3), nullable=True)
-    res1 = db.Column(db.String(100), nullable=True)
-    res2 = db.Column(db.String(100), nullable=True)
-    res3 = db.Column(db.String(100), nullable=True)
+    responses = db.Column(db.JSON(), nullable=False)
     participant_folder = db.Column(db.String(100), nullable=False)
 
     def __repr__(self):
-        return f"Responses('{self.lan_code}','{self.res1}', '{self.res2}', '{self.res3}', '{self.participant_folder}')"
+        return f"Responses('{self.lan_code}','{self.participant_folder}','[" + ", ".join(self.responses) + "]')"

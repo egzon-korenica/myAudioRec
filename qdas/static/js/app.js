@@ -148,6 +148,13 @@ function createDownloadLink(blob, index) {
     submit.innerHTML = "Submit";
     submit.setAttribute("name", "submitButton");
     submit.setAttribute("id", "submitButton" + index);
+    submit.setAttribute("style", "display: inline-block; \
+    width:115px; height:25px; background: #5db065;\
+     padding:10px 10px 20px 10px; text-align:center;\
+    border: solid 1px black;\
+     border-radius: 5px; color:white; text-decoration: none;\
+     font-weight:bold; display: block; margin-left:auto;\
+    margin-right:auto;")
     submit.addEventListener("click", function (event) {
         var xhr=new XMLHttpRequest();
         xhr.onload=function(e) {
@@ -158,6 +165,7 @@ function createDownloadLink(blob, index) {
         var fd=new FormData();
         fd.append("audio_data",blob);
         xhr.open("POST","/index",true);
+        xhr.setRequestHeader("x-csrf-token", mytoken)
         xhr.send(fd);
 
         document.getElementById("container-" + index).style.display = "none";

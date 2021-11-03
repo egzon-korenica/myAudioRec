@@ -1,4 +1,5 @@
 import json
+import operator
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions
@@ -17,26 +18,27 @@ natural_language_understanding = NaturalLanguageUnderstandingV1(
 
 natural_language_understanding.set_service_url(url)
 
-def getKeywords(option, survey_id):
 
-    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).all()
+def getKeywords(option, survey_id):
+    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
+        Responses.lan_code == "en").all()
     r_texts = []
     for index, response in enumerate(responses):
-        r_texts.append(response.Responses.res1)
-        r_texts.append(response.Responses.res2)
-        r_texts.append(response.Responses.res3)
+        for res in response.Responses.responses:
+            r_texts.append(res)
 
     decs = []
     for r in r_texts:
-        response = natural_language_understanding.analyze(
-            text = r,
-            features=Features(
-                keywords=KeywordsOptions(emotion=True, sentiment=False,
-                                         limit=50))).get_result()
+        if len(r) > 0:
+            response = natural_language_understanding.analyze(
+                text=r,
+                features=Features(
+                    keywords=KeywordsOptions(emotion=True, sentiment=False,
+                                             limit=50))).get_result()
 
-        enc = json.dumps(response, indent=2)
-        dec = json.loads(enc)
-        decs.append(dec)
+            enc = json.dumps(response, indent=2)
+            dec = json.loads(enc)
+            decs.append(dec)
 
     kws = []
     rels = []
@@ -44,35 +46,35 @@ def getKeywords(option, survey_id):
 
     for dec in decs:
         for keyword in dec['keywords']:
-                if option == "frequency" and keyword['relevance'] > 0.5:
-                    kws.append(keyword['text'])
-                    rels.append(keyword['relevance'])
-                if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
-                    kws.append(keyword['text'])
-                    rels.append(max(keyword['emotion']))
+            if option == "frequency" and keyword['relevance'] > 0.5:
+                kws.append(keyword['text'])
+                rels.append(keyword['relevance'])
+            if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
+                kws.append(keyword['text'])
+                rels.append(max(keyword['emotion'].items(), key=operator.itemgetter(1))[0])
 
     for value, line in zip(rels, kws):
         if line in key_dict:
-            key_dict[line].append(value) # append the element
+            key_dict[line].append(value)  # append the element
         else:
             key_dict[line] = [value]
 
     return key_dict
 
 
-
 def getKeywordAnalysisResults(survey_id):
     k_data = getKeywords("frequency", survey_id)
-    for k,v in k_data.items():
-        k_data[k] = float(sum(v)/len(v))
+    for k, v in k_data.items():
+        k_data[k] = float(sum(v) / len(v))
     return k_data
 
 
 def getFrequentKeywords(survey_id):
     k_data = getKeywords("frequency", survey_id)
-    for k,v in k_data.items():
+    for k, v in k_data.items():
         k_data[k] = int(len(v))
     return k_data
+
 
 def getOverallKA(survey_id):
     relevance = getKeywordAnalysisResults(survey_id)
@@ -89,21 +91,24 @@ def getOverallKA(survey_id):
     res_j = json.dumps(res)
     return res_j
 
+
 def getKeywordEmotion(survey_id):
     emotions_dict = getKeywords("emotion", survey_id)
-    new_dict = {i:str(j[0]) for i,j in emotions_dict.items()}
+    new_dict = {i: str(j[0]) for i, j in emotions_dict.items()}
     print(new_dict)
     return new_dict
+
 
 def getAverageRelevance(listoflist):
     relevances = []
     data = json.loads(listoflist)
     for l in data:
         relevances.append(l[1])
-    avg = sum(relevances)/len(relevances)
+    avg = sum(relevances) / len(relevances)
     avgf = '{:.5f}'.format(avg)
 
     return avgf
+
 
 if __name__ == "__main__":
     getAverageRelevance()

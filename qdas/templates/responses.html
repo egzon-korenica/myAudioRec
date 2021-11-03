@@ -1,30 +1,31 @@
 {% extends "layout.html" %}
 {% block content %}
     <script type="text/javascript">
-      var keywords = {{ kws|safe }}
+        var keywords =
+        {{ kws|safe }}
     </script>
-    <section class="pb-5 header text-center" >
+    <section class="pb-5 header text-center">
         <header class="pb-4">
             <h1 class="display-4">All Responses</h1>
         </header>
 
-      <table id="data" class="table table-striped">
-        <thead>
-          <tr>
-            <th>Response 1</th>
-            <th>Response 2</th>
-            <th>Response 3</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for r in responses %}
+        <table id="data" class="table table-striped">
+            <thead>
             <tr>
-              <td>{{ r.Responses.res1 }}</td>
-              <td>{{ r.Responses.res2 }}</td>
-              <td>{{ r.Responses.res3 }}</td>
+                <th>Response 1</th>
+                <th>Response 2</th>
+                <th>Response 3</th>
             </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+            {% for r in responses %}
+                <tr>
+                    {% for res in r.Responses.responses %}
+                        <td>{{ res }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </section>
 {% endblock content %}

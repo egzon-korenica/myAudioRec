@@ -1,21 +1,28 @@
 {% extends "layout.html" %}
 {% block content %}
-			<h2 class="mt-5">Create Survey</h2>
-					<form class="createSurvey mt-3" action="{{ url_for('create_survey')}}" method="post">
-						{{ form.hidden_tag() }}
-						<div class="field_wrapper">
-								<div class="form-group">
-										{{ form.topic.label(class="form-control-label") }}
-										{{ form.topic(class="form-control form-control-sm") }}
-										{{ form.q1.label(class="form-control-label") }}
-										{{ form.q1(class="form-control form-control-sm") }} <br>
-										{{ form.q2.label(class="form-control-label") }}
-										{{ form.q2(class="form-control form-control-sm") }} <br>
-										{{ form.q3.label(class="form-control-label") }}
-										{{ form.q3(class="form-control form-control-sm") }} <br>
-								</div>
-						</div>
-						<p><button type="submit" class="btn btn-default">Generate Survey</button></p>
-					</form>
+    <h2 class="mt-5">Create Survey</h2>
+    <form class="createSurvey mt-3" action="{{ url_for('create_survey') }}" method="post">
+        {{ form.hidden_tag() }}
+        <div class="field_wrapper">
+            {% if form.errors %}
+                {{ form.errors }}
+            {% endif %}
+            <div class="form-group">
+                {{ form.topic.label(class="form-control-label") }}
+                {{ form.topic(class="form-control form-control-sm") }}
+                {% for feild in form.questions %}
+                    <br>
+                    {{ feild.form.question.label(class="form-control-label") }}
+                    {{ feild.form.question(class="form-control form-control-sm") }}
+                {% endfor %}
+            </div>
+        </div>
+        <p>
+            {{ form.add_q }}
+        </p>
+        <p>
+            {{ form.submit }}
+        </p>
+    </form>
 
 {% endblock content %}

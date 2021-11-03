@@ -1,102 +1,104 @@
 import json
-from ibm_watson import NaturalLanguageUnderstandingV1
+import test2
+
+from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions
 from qdas import db
 from qdas.models import Survey, Responses
+import os
+import subprocess
 
-apikey = "XJX6gQPMRUfkx0USfzHIHrrPHnH5PEPycxZkIE6xAazh"
+APIKEY = "bHu1STJdEgOa12vLPoSeC1VzuvZvV22sigeRg93hixsF"
+URL = "https://api.us-east.speech-to-text.watson.cloud.ibm.com/instances/81d71fa0-e15b-4f65-a075-f2115ab3354e"
 
-url = "https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/1ba469e8-195f-429f-a646-588c2d5dc3ef"
+authenticator = IAMAuthenticator(APIKEY)
+stt = SpeechToTextV1(authenticator=authenticator)
+stt.set_service_url(URL)
 
-authenticator = IAMAuthenticator(apikey)
-natural_language_understanding = NaturalLanguageUnderstandingV1(
-    version='2021-03-25',
-    authenticator=authenticator
-)
+models = {
+    "ar": "ar-MS_Telephony",
+    "de": "de-DE_Telephony",
+    "en": "en-US_Multimedia",
+    "es": "es-ES_Telephony",
+    "fr": "fr-FR_Multimedia"
+    # "it": "it-IT_Telephony",
+    # "ja": "ja-JP_Multimedia",
+    # "ko": "ko-KR_Multimedia",
+    # "nl": "nl-NL_Telephony",
+    # "pt": "pt-BR_Telephony",
+    # "zh": "zh-CN_Telephony"
+}
 
-natural_language_understanding.set_service_url(url)
+def convertToText(tdir, survey_id=2):
+    files = []
+    for filename in os.listdir(tdir):
+        if filename.endswith('.wav'):
+            files.append(filename)
+    files.sort()
 
-def getKeywords(option):
+    results = []
+    
+    fn_cut = files[0][:-4]
+    lg = str(fn_cut[-2:])
+ 
+    for filename in files:
+        with open(tdir + filename, 'rb') as f:
+            res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=True, model=models.get(lg),
+                                inactivity_timeout=300).get_result()
+            results.append(res)
 
-    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == 1).all()
-    r_texts = []
-    for index, response in enumerate(responses):
-        r_texts.append(response.Responses.res1)
-        r_texts.append(response.Responses.res2)
-        r_texts.append(response.Responses.res3)
+    # print(results)
 
-    decs = []
-    for r in r_texts:
-        response = natural_language_understanding.analyze(
-            text = r,
-            features=Features(
-                keywords=KeywordsOptions(emotion=True, sentiment=False,
-                                         limit=50))).get_result()
+    text = []
+    for file in results:
+        record = []
+        for result in file['results']:
+            record.append(result['alternatives'][0]['transcript'].rstrip())
+        full_sentence = (" ".join(record))
+        text.append(full_sentence)
+    print(f'text-->{text}')
+    
+    survey = db.session.query(Survey).order_by(Survey.id.desc()).get(survey_id)
+    # if len(text) == nr_responses:
+    responses = Responses(lan_code=lg, responses=text,
+                              participant_folder=os.sep.join(os.path.normpath(tdir).split(os.sep)[-2:]))
+    survey.response_ts.append(responses)
+    print(survey.response_ts)
+    db.session.commit()
+    
+    t_text = test2.translate(text, lg)
+    print(t_text)
+    test2.addResponseToDatabase(t_text, tdir)
+    # else:
+    #     print("Some of the responses are missing for this participant")
+    # with open(dir + 'output.txt', 'w') as out:
+    # out.writelines(text)
 
-        enc = json.dumps(response, indent=2)
-        dec = json.loads(enc)
-        decs.append(dec)
 
-    kws = []
-    rels = []
-    key_dict = {}
+def loopDirs(rootdir='qdas/static/audioResponses', survey_id=2):
+    paths = []
+    survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
+    print(f' dir -->{survey_dir}')
+    for root, dirs, files in os.walk(rootdir + "/" + survey_dir):
+        if not dirs:
+            paths.append(root)
 
-    for dec in decs:
-        print(dec)
-        for keyword in dec['keywords']:
-                if option == "frequency" and keyword['relevance'] > 0.5:
-                    kws.append(keyword['text'])
-                    rels.append(keyword['relevance'])
-                if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
-                    kws.append(keyword['text'])
-                    rels.append(max(keyword['emotion']))
+    folder_names = [responses.participant_folder for responses in Responses.query.all()]
+    print(folder_names)
 
-    for value, line in zip(rels, kws):
-        if line in key_dict:
-            key_dict[line].append(value) # append the element
+    for audioDir in paths:
+        print(audioDir)
+        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
+            print("these responses have been converted")
         else:
-            key_dict[line] = [value]
-
-    return key_dict
-
+            print("convert")
+            convertToText(audioDir + '/', survey_id=2)
 
 
-def getKeywordAnalysisResults():
-    k_data = getKeywords("frequency")
-    for k,v in k_data.items():
-        k_data[k] = float(sum(v)/len(v))
-    return k_data
+def nrOfAudioResponses(rootdir, survey_id=2):
+    survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
+    nr_audio = len(next(os.walk(rootdir + "/" + survey_dir))[1])
+    return nr_audio
 
 
-def getFrequentKeywords():
-    k_data = getKeywords("frequency")
-    for k,v in k_data.items():
-        k_data[k] = int(len(v))
-    return k_data
-
-def getOverallKA():
-    relevance = getKeywordAnalysisResults()
-    freq = getFrequentKeywords()
-    l = []
-    ds = [relevance, freq]
-    d = {}
-    for k in relevance.keys():
-        d[k] = list(d[k] for d in ds)
-
-    res = []
-    for key, val in d.items():
-        res.append([key] + val)
-    res_j = json.dumps(res)
-    return res_j
-
-
-
-if __name__ == "__main__":
-    getAverageRelevance()
-    getKeywords()
-    getKeywordAnalysisResults()
-    getFrequentKeywords()
-    getOverallKA()
-    getKeywordEmotion()
-
+loopDirs()

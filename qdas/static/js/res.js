@@ -28,7 +28,7 @@ for(var i = 0; i < tables.length; i++)
           break;
         case 'joy':
           var s = tables[i].innerHTML;
-          s = s.replace(key, '<span style="color:pink; font-weight:bold">' + key + '</span>');
+          s = s.replace(key, '<span style="color:purple; font-weight:bold">' + key + '</span>');
           tables[i].innerHTML = s;
           break;
       default:

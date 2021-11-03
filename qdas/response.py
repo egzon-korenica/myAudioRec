@@ -25,14 +25,15 @@ def audioResponseDir(folderType):
     else:
         print("no directory name provided")
 
-def saveResponse():
+def saveResponse(lg):
+    print(lg)
     SURVEY_DIR = str(max(glob.glob(os.path.join('qdas/static/audioResponses', '*/')), key=os.path.getmtime))[:-1] + "/"
     TARGET_DIR = str(max(glob.glob(os.path.join(SURVEY_DIR, '*/')), key=os.path.getmtime))[:-1] + "/"
     f = request.files['audio_data']
     i = 0
-    while os.path.exists(TARGET_DIR + "/audio{:02d}.wav".format(i)):
+    while os.path.exists(TARGET_DIR + "/audio{:02d}".format(i) + "-" + lg + ".wav"):
         i +=1
-    with open(TARGET_DIR + '/audio{:02d}.wav'.format(i), 'wb') as audio:
+    with open(TARGET_DIR + "/audio{:02d}".format(i) + "-" + lg + ".wav", 'wb') as audio:
         f.save(audio)
         print('file uploaded successfully')
 

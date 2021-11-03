@@ -1,7 +1,6 @@
 import os
 import glob
 import sqlite3
-import requests
 import json
 import shutil
 from qdas import app, tts, translation, db, querys, response, stt, toneAnalysis, nlu
@@ -24,10 +23,12 @@ def index():
     currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
     topic = db.session.query(Questions.topic).filter(Questions.survey_id == currentSurvey.id,
                                                      Questions.lan_code == lang).first()
+
     tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace(
         "qdas", ".")
     if request.method == "POST":
-        response.saveResponse()
+        lg = str(request.referrer)[-2:]
+        response.saveResponse(lg)
         return render_template('index.html', request="POST", questions=questions, topic=topic, dir=tdir)
     else:
         response.audioResponseDir("audio")

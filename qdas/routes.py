@@ -118,12 +118,11 @@ def survey(survey_id):
     ta_data = toneAnalysis.getToneAnalysisResults(survey_id)
     k_data = nlu.getFrequentKeywords(survey_id)
     overall_data = nlu.getOverallKA(survey_id)
-    # avg_rel = nlu.getAverageRelevance(overall_data)
     nr_participants = stt.nrOfAudioResponses(rootDir, survey_id)
     nr_convLeft = nr_participants - nr_responses
     return render_template('survey.html', survey=survey, ta_data=ta_data, \
                            k_data=k_data, nr_responses=nr_responses, nr_convLeft=nr_convLeft,
-                           overall_data=overall_data)  # avg_rel=avg_rel)
+                           overall_data=overall_data)
 
 
 @app.route("/dashboard/survey/<int:survey_id>/responses")
@@ -140,7 +139,14 @@ def keywords(survey_id):
         Questions.lan_code == "en").all()
     k_data = nlu.getFrequentKeywords(survey_id)
     overall_data = nlu.getOverallKA(survey_id)
-    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data)
+    ent_data = nlu.getEntities(survey_id)
+    entities_dict = {}
+    for key, value in ent_data.items():
+        entities_dict[key] = list(set(value))
+
+    print(entities_dict)
+
+    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data, entities_dict = entities_dict)
 
 
 if __name__ == "__main__":

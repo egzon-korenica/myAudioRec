@@ -3,6 +3,8 @@
 
 <script src="https://cdn.anychart.com/releases/v8/js/anychart-base.min.js"></script>
 <script src="https://cdn.anychart.com/releases/v8/js/anychart-tag-cloud.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-core.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-bundle.min.js"></script>
 
 <script>
   anychart.onDocumentReady(function() {
@@ -60,6 +62,111 @@
     chart.container("bubble_chart");
     chart.draw();
   });
+</script>
+<script type="text/javascript">
+  ents = {{ entities_dict|safe }}
+  anychart.onDocumentReady(function () {
+
+    var dropdown = document.getElementById("typeSelect");
+    var val = dropdown.value;
+
+    console.log(ents)
+
+    var vals = ents[val]
+
+     var arrayLength = vals.length;
+     children = []
+
+     for (var i = 0; i < arrayLength; i++) {
+         console.log(vals[i]);
+         //Do something
+         children.push({value: vals[i]})
+     }
+
+    var data = [
+    ];
+
+    data.push({value:     val,
+           children: children
+         })
+    //let result = data.map(a => a.children);
+
+    var chart = anychart.wordtree(data, "as-tree");
+
+    // set the chart title
+    chart.title("Word Tree: Data (Tree)");
+
+    // set the container id
+    chart.container("word_tree");
+
+    // initiate drawing the chart
+    chart.draw();
+
+});
+
+function switchType() {
+   var e = document.getElementById("typeSelect");
+   var selected_value = e.options[e.selectedIndex].value;
+   element = document.getElementById("word_tree");
+
+   var vals = ents[selected_value]
+
+    var arrayLength = vals.length;
+    children = []
+
+    for (var i = 0; i < arrayLength; i++) {
+        console.log(vals[i]);
+        //Do something
+        children.push({value: vals[i]})
+    }
+
+   anychart.onDocumentReady(function () {
+     var ents = {{ entities_dict|safe }}
+     var dropdown = document.getElementById("typeSelect");
+     var val = dropdown.value;
+
+     var data = [
+     ];
+
+     data.push({value:     val,
+            children: children
+          })
+     //let result = data.map(a => a.children);
+
+     // create a chart and set the data
+     if (element) {
+    // Get its parent
+        parent = element.parentNode;
+
+        // Create the new element
+        newElement = document.createElement('div');
+
+        // Set its ID and content
+        newElement.id = "word_tree";
+        newElement.setAttribute("style", "width: 1000px; height: 500px;")
+
+        // Insert the new one in front of the old one (this temporarily
+        // creates an invalid DOM tree [two elements with the same ID],
+        // but that's harmless because we're about to fix that).
+        parent.insertBefore(newElement, element);
+
+        // Remove the original
+        parent.removeChild(element);
+    }
+
+     var chart = anychart.wordtree(data, "as-tree");
+
+     // set the chart title
+     chart.title("Word Tree: Data (Tree)");
+
+     // set the container id
+     chart.container("word_tree");
+
+     // initiate drawing the chart
+     chart.draw();
+
+ });
+  }
 
 </script>
 
@@ -67,8 +174,21 @@
   <div class="jumbotron">
     {% for k in survey %}
       <h2 class="display-4">Keyword Analysis</h2>
-      <div id="word_cloud" style="width: 1000px; height: 500px; margin-bottom:5px;"></div>
-      <div id="bubble_chart" style="width: 1000px; height: 500px;"></div>
+      <h2 class="display-5">Most frequent keywords</h2>
+      <div id="word_cloud" style="width: 1000px; height: 500px; margin-bottom:5px;"></div><br>
+      <h2 class="display-5">Keyword frequency and their relevance score</h2>
+      <div id="bubble_chart" style="width: 1000px; height: 500px;"></div><br>
+      <h2 class="display-5">Entities found in responses</h2>
+      <select id="typeSelect" onchange="switchType()">
+        {% for key in entities_dict.keys() %}
+          {% if loop.first %}
+            <option selected="selected" value="{{ key }}">{{ key }}</option>
+          {% else %}
+            <option selected="selected" value="{{ key }}">{{ key }}</option>
+          {% endif %}
+        {% endfor %}
+    </select>
+      <div id="word_tree" style="width: 1000px; height: 500px;"></div>
     {% endfor %}
   </div>
 </div>

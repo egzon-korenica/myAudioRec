@@ -1,104 +1,134 @@
 import json
-import test2
-
-from ibm_watson import SpeechToTextV1
+import operator
+from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions, RelationsOptions
 from qdas import db
 from qdas.models import Survey, Responses
-import os
-import subprocess
 
-APIKEY = "bHu1STJdEgOa12vLPoSeC1VzuvZvV22sigeRg93hixsF"
-URL = "https://api.us-east.speech-to-text.watson.cloud.ibm.com/instances/81d71fa0-e15b-4f65-a075-f2115ab3354e"
+apikey = "XJX6gQPMRUfkx0USfzHIHrrPHnH5PEPycxZkIE6xAazh"
 
-authenticator = IAMAuthenticator(APIKEY)
-stt = SpeechToTextV1(authenticator=authenticator)
-stt.set_service_url(URL)
+url = "https://api.eu-gb.natural-language-understanding.watson.cloud.ibm.com/instances/1ba469e8-195f-429f-a646-588c2d5dc3ef"
 
-models = {
-    "ar": "ar-MS_Telephony",
-    "de": "de-DE_Telephony",
-    "en": "en-US_Multimedia",
-    "es": "es-ES_Telephony",
-    "fr": "fr-FR_Multimedia"
-    # "it": "it-IT_Telephony",
-    # "ja": "ja-JP_Multimedia",
-    # "ko": "ko-KR_Multimedia",
-    # "nl": "nl-NL_Telephony",
-    # "pt": "pt-BR_Telephony",
-    # "zh": "zh-CN_Telephony"
-}
+authenticator = IAMAuthenticator(apikey)
+natural_language_understanding = NaturalLanguageUnderstandingV1(
+    version='2021-03-25',
+    authenticator=authenticator
+)
 
-def convertToText(tdir, survey_id=2):
-    files = []
-    for filename in os.listdir(tdir):
-        if filename.endswith('.wav'):
-            files.append(filename)
-    files.sort()
+natural_language_understanding.set_service_url(url)
 
-    results = []
+
+def getKeywords(option, survey_id):
+    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
+        Responses.lan_code == "en").all()
+    r_texts = []
+    for index, response in enumerate(responses):
+        for res in response.Responses.responses:
+            r_texts.append(res)
+
+    decs = []
+    for r in r_texts:
+       if len(r) > 0 and option != "relation" and option != "entity":
+            response = natural_language_understanding.analyze(
+                text=r,
+                features=Features(
+                    keywords=KeywordsOptions(emotion=True, sentiment=False,
+                                             limit=50))).get_result()
+
+            enc = json.dumps(response, indent=2)
+            dec = json.loads(enc)
+            decs.append(dec)
+            
+       if len(r) > 0 and option == "relation" or option == "entity":
+            response = natural_language_understanding.analyze(
+                text=r,
+                    features=Features(relations=RelationsOptions())).get_result()
+
+            enc = json.dumps(response, indent=2)
+            dec = json.loads(enc)
+            decs.append(dec)
+
+    rlts = []
+    stc = []
     
-    fn_cut = files[0][:-4]
-    lg = str(fn_cut[-2:])
- 
-    for filename in files:
-        with open(tdir + filename, 'rb') as f:
-            res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=True, model=models.get(lg),
-                                inactivity_timeout=300).get_result()
-            results.append(res)
+    key_dict = {}
 
-    # print(results)
+    for dec in decs:
+    	#print(dec)
+    	if option == "relation":		
+            for relation in dec['relations']:
+                if len(relation) != 0 and relation['score'] > 0.5:
+                    rlts.append(relation['type'])
+                    stc.append(relation['sentence'])
 
-    text = []
-    for file in results:
-        record = []
-        for result in file['results']:
-            record.append(result['alternatives'][0]['transcript'].rstrip())
-        full_sentence = (" ".join(record))
-        text.append(full_sentence)
-    print(f'text-->{text}')
+    	if option == "entity":		
+            for relation in dec['relations']:
+                if len(relation) != 0 and relation['score'] > 0.5:
+                    for arg in relation['arguments']:
+                        for entity in arg['entities']:
+                            rlts.append(entity['type'])
+                            stc.append(entity['text'])
+                        
+                        
     
-    survey = db.session.query(Survey).order_by(Survey.id.desc()).get(survey_id)
-    # if len(text) == nr_responses:
-    responses = Responses(lan_code=lg, responses=text,
-                              participant_folder=os.sep.join(os.path.normpath(tdir).split(os.sep)[-2:]))
-    survey.response_ts.append(responses)
-    print(survey.response_ts)
-    db.session.commit()
-    
-    t_text = test2.translate(text, lg)
-    print(t_text)
-    test2.addResponseToDatabase(t_text, tdir)
-    # else:
-    #     print("Some of the responses are missing for this participant")
-    # with open(dir + 'output.txt', 'w') as out:
-    # out.writelines(text)
-
-
-def loopDirs(rootdir='qdas/static/audioResponses', survey_id=2):
-    paths = []
-    survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
-    print(f' dir -->{survey_dir}')
-    for root, dirs, files in os.walk(rootdir + "/" + survey_dir):
-        if not dirs:
-            paths.append(root)
-
-    folder_names = [responses.participant_folder for responses in Responses.query.all()]
-    print(folder_names)
-
-    for audioDir in paths:
-        print(audioDir)
-        if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
-            print("these responses have been converted")
+    for value, line in zip(stc, rlts):
+        if line in key_dict:
+            key_dict[line].append(value)  # append the element
         else:
-            print("convert")
-            convertToText(audioDir + '/', survey_id=2)
+            key_dict[line] = [value]
+
+    print(key_dict)
+    return key_dict
+	
+
+def getKeywordAnalysisResults(survey_id):
+    k_data = getKeywords("frequency", survey_id)
+    for k, v in k_data.items():
+        k_data[k] = float(sum(v) / len(v))
+    return k_data
 
 
-def nrOfAudioResponses(rootdir, survey_id=2):
-    survey_dir = db.session.query(Survey.survey_folder).filter(Survey.id == survey_id).scalar()
-    nr_audio = len(next(os.walk(rootdir + "/" + survey_dir))[1])
-    return nr_audio
+def getFrequentKeywords(survey_id):
+    k_data = getKeywords("frequency", survey_id)
+    for k, v in k_data.items():
+        k_data[k] = int(len(v))
+    return k_data
 
 
-loopDirs()
+def getOverallKA(survey_id):
+    relevance = getKeywordAnalysisResults(survey_id)
+    freq = getFrequentKeywords(survey_id)
+    l = []
+    ds = [relevance, freq]
+    d = {}
+    for k in relevance.keys():
+        d[k] = list(d[k] for d in ds)
+
+    res = []
+    for key, val in d.items():
+        res.append([key] + val)
+    res_j = json.dumps(res)
+    return res_j
+
+
+def getKeywordEmotion(survey_id):
+    emotions_dict = getKeywords("emotion", survey_id)
+    new_dict = {i: str(j[0]) for i, j in emotions_dict.items()}
+    print(new_dict)
+    return new_dict
+
+    
+def getRelations(survey_id):
+    relations_dict = getKeywords("entity", survey_id)
+    
+
+getRelations(survey_id = 1)
+
+if __name__ == "__main__":
+    getKeywords()
+    getKeywordAnalysisResults()
+    getFrequentKeywords()
+    getOverallKA()
+    getKeywordEmotion()
+

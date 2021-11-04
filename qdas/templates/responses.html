@@ -11,15 +11,19 @@
 
         <table id="data" class="table table-striped">
             <thead>
-            <tr>
-                <th>Response 1</th>
-                <th>Response 2</th>
-                <th>Response 3</th>
-            </tr>
+              <th>Participant</th>
+              {% for r in responses %}
+                  {% if loop.first %}
+                      {% for res in r.Responses.responses %}
+                          <th>Response {{ loop.index }}</th>
+                      {% endfor %}
+                  {% endif %}
+              {% endfor %}
             </thead>
             <tbody>
             {% for r in responses %}
                 <tr>
+                    <td>{{ loop.index }}</td>
                     {% for res in r.Responses.responses %}
                         <td>{{ res }}</td>
                     {% endfor %}
@@ -27,5 +31,6 @@
             {% endfor %}
             </tbody>
         </table>
+
     </section>
 {% endblock content %}

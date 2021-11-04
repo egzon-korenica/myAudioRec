@@ -27,11 +27,11 @@ tts.set_service_url(url)
 # 'it-IT_FrancescaV3Voice', 'ja-JP_EmiV3Voice', 'ko-KR_SiWooVoice', 'nl-NL_EmmaVoice', 'pt-BR_IsabelaV3Voice', 'h-CN_ZhangJingVoice']
 
 voices = {
-    "ar": "ar-AR_OmarVoice",
+    #"ar": "ar-AR_OmarVoice",
     "de": "de-DE_BirgitV3Voice",
     "en": "en-GB_KateV3Voice",
-    "es": "es-ES_EnriqueV3Voice",
-    "fr": "fr-CA_LouiseV3Voice"
+    #"es": "es-ES_EnriqueV3Voice",
+    #"fr": "fr-CA_LouiseV3Voice"
     # "it": "Mustang",
     # "ja": "Mustang",
     # "ko": "Mustang",

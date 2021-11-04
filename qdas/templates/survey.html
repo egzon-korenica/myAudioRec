@@ -85,7 +85,6 @@
                                                  href="{{ url_for('keywords', survey_id=k.Survey.id) }}">Keyword
                             Analysis</a></h2>
                         <p>Number of keywords for {{ nr_responses }} submitted responses: {{ k_data.keys()|length }}</p>
-                        <p>Average relevance score of the keywords: {{ avg_rel }}</p>
                     {% endfor %}
                 </div>
             </div>

@@ -2,7 +2,7 @@ import json
 import operator
 from ibm_watson import NaturalLanguageUnderstandingV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions
+from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions, RelationsOptions
 from qdas import db
 from qdas.models import Survey, Responses
 
@@ -29,7 +29,7 @@ def getKeywords(option, survey_id):
 
     decs = []
     for r in r_texts:
-        if len(r) > 0:
+        if len(r) > 0 and option != "relation" and option != "entity":
             response = natural_language_understanding.analyze(
                 text=r,
                 features=Features(
@@ -40,18 +40,41 @@ def getKeywords(option, survey_id):
             dec = json.loads(enc)
             decs.append(dec)
 
+        if len(r) > 0 and option == "relation" or option == "entity":
+            response = natural_language_understanding.analyze(
+                text=r,
+                    features=Features(relations=RelationsOptions())).get_result()
+
+            enc = json.dumps(response, indent=2)
+            dec = json.loads(enc)
+            decs.append(dec)
+
     kws = []
     rels = []
     key_dict = {}
 
     for dec in decs:
-        for keyword in dec['keywords']:
-            if option == "frequency" and keyword['relevance'] > 0.5:
-                kws.append(keyword['text'])
-                rels.append(keyword['relevance'])
-            if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
-                kws.append(keyword['text'])
-                rels.append(max(keyword['emotion'].items(), key=operator.itemgetter(1))[0])
+        if option != "relation" and option != "entity":
+            for keyword in dec['keywords']:
+                if option == "frequency" and keyword['relevance'] > 0.5:
+                    kws.append(keyword['text'])
+                    rels.append(keyword['relevance'])
+                if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
+                    kws.append(keyword['text'])
+                    rels.append(max(keyword['emotion'].items(), key=operator.itemgetter(1))[0])
+        if option == "relation":
+            for relation in dec['relations']:
+                if len(relation) != 0 and relation['score'] > 0.5:
+                    kws.append(relation['type'])
+                    rels.append(relation['sentence'])
+
+        if option == "entity":
+            for relation in dec['relations']:
+                if len(relation) != 0 and relation['score'] > 0.5:
+                    for arg in relation['arguments']:
+                        for entity in arg['entities']:
+                            kws.append(entity['type'])
+                            rels.append(entity['text'])
 
     for value, line in zip(rels, kws):
         if line in key_dict:
@@ -98,20 +121,15 @@ def getKeywordEmotion(survey_id):
     print(new_dict)
     return new_dict
 
+def getRelations(survey_id):
+    relations_dict = getKeywords("relation", survey_id)
+    print(relations_dict)
 
-def getAverageRelevance(listoflist):
-    relevances = []
-    data = json.loads(listoflist)
-    for l in data:
-        relevances.append(l[1])
-    avg = sum(relevances) / len(relevances)
-    avgf = '{:.5f}'.format(avg)
-
-    return avgf
-
+def getEntities(survey_id):
+    entities_dict = getKeywords("entity", survey_id)
+    return entities_dict
 
 if __name__ == "__main__":
-    getAverageRelevance()
     getKeywords()
     getKeywordAnalysisResults()
     getFrequentKeywords()

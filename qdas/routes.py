@@ -139,14 +139,15 @@ def keywords(survey_id):
         Questions.lan_code == "en").all()
     k_data = nlu.getFrequentKeywords(survey_id)
     overall_data = nlu.getOverallKA(survey_id)
+    rel_data = nlu.getRelations(survey_id)
+    print(rel_data)
     ent_data = nlu.getEntities(survey_id)
     entities_dict = {}
     for key, value in ent_data.items():
         entities_dict[key] = list(set(value))
 
-    print(entities_dict)
-
-    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data, entities_dict = entities_dict)
+    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data,\
+     entities_dict=entities_dict, rel_data=rel_data)
 
 
 if __name__ == "__main__":

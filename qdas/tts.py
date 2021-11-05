@@ -5,8 +5,8 @@
 # using new language models
 import json
 
-url = 'https://api.us-east.text-to-speech.watson.cloud.ibm.com/instances/63d065bd-c1cb-4786-be18-b48bca963823'
-apikey = 'RcFdGaMhLVR2OoKUUoOHeqOoIvSQ6j-rSDOlyOWyYcte'
+url = 'https://api.eu-gb.text-to-speech.watson.cloud.ibm.com/instances/026c799e-4fe9-4f51-9666-cd48b628ec99'
+apikey = 'YFtxheQpnYkOLztffr02FHIyCTmMXFo3pNhwO2mZ2QKn'
 
 from ibm_watson import TextToSpeechV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator

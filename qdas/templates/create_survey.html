@@ -12,16 +12,16 @@
                 {{ form.topic(class="form-control form-control-sm") }}
                 {% for feild in form.questions %}
                     <br>
-                    {{ feild.form.question.label(class="form-control-label") }}
+                    {{ feild.form.question.label(class="form-control-label") }} {{ loop.index }}
                     {{ feild.form.question(class="form-control form-control-sm") }}
                 {% endfor %}
             </div>
         </div>
         <p>
-            {{ form.add_q }}
+            {{ form.add_q(class="btn btn-default border border-success") }}
         </p>
         <p>
-            {{ form.submit }}
+            {{ form.submit(class="btn btn-default border border-primary") }}
         </p>
     </form>
 

@@ -188,8 +188,27 @@ function switchType() {
           {% endif %}
         {% endfor %}
     </select>
-      <div id="word_tree" style="width: 1000px; height: 500px;"></div>
+      <div id="word_tree" style="width: 1000px; height: 500px;"></div><br>
     {% endfor %}
+    <h2 class="display-5">Relations found in responses</h2>
+    <table id="data" class="table table-striped">
+        <thead>
+          <th>Relation</th>
+          <th>Sentence</th>
+        </thead>
+        <tbody>
+        {% for key, value in rel_data.items() %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>
+                {% for v in value %}
+                  {{ v }}
+                {% endfor %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
   </div>
 </div>
 

@@ -123,7 +123,7 @@ def getKeywordEmotion(survey_id):
 
 def getRelations(survey_id):
     relations_dict = getKeywords("relation", survey_id)
-    print(relations_dict)
+    return relations_dict
 
 def getEntities(survey_id):
     entities_dict = getKeywords("entity", survey_id)

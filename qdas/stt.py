@@ -6,8 +6,8 @@ from qdas.models import Survey, Responses
 import os
 import subprocess
 
-APIKEY = "bHu1STJdEgOa12vLPoSeC1VzuvZvV22sigeRg93hixsF"
-URL = "https://api.us-east.speech-to-text.watson.cloud.ibm.com/instances/81d71fa0-e15b-4f65-a075-f2115ab3354e"
+APIKEY = "1njZRQgYAuB2NBFFj2azPrFYdP2mLcaQtcBdkSPUaFlC"
+URL = "https://api.eu-de.speech-to-text.watson.cloud.ibm.com/instances/9c3ec9fa-b798-44f6-9f3d-67f8406f20a0"
 
 authenticator = IAMAuthenticator(APIKEY)
 stt = SpeechToTextV1(authenticator=authenticator)

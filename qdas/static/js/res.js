@@ -8,7 +8,7 @@ for(var i = 0; i < tables.length; i++)
       switch (keywords[key]) {
         case 'anger':
           var s = tables[i].innerHTML;
-          s = s.replace(key, '<span style="color:green; font-weight:bold">' + key + '</span>');
+          s = s.replace(key, '<span style="color:red; font-weight:bold">' + key + '</span>');
           tables[i].innerHTML = s;
           break;
         case 'sadness':
@@ -18,7 +18,7 @@ for(var i = 0; i < tables.length; i++)
           break;
         case 'fear':
           var s = tables[i].innerHTML;
-          s = s.replace(key, '<span style="color:red; font-weight:bold">' + key + '</span>');
+          s = s.replace(key, '<span style="color:green; font-weight:bold">' + key + '</span>');
           tables[i].innerHTML = s;
           break;
         case 'disgust':

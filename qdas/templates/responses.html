@@ -4,10 +4,30 @@
         var keywords =
         {{ kws|safe }}
     </script>
+    <style media="screen">
+      /* basic positioning */
+      .legend { list-style: none; }
+      .legend li { float: right; margin-right: 10px; }
+      .legend span { border: 1px solid #ccc; float: left; width: 15px; height: 15px; margin: 2px; }
+      /* your colors */
+      .legend .anger { background-color: red; }
+      .legend .sadness { background-color: blue; }
+      .legend .fear { background-color: green; }
+      .legend .disgust { background-color: yellow; }
+      .legend .joy { background-color: purple; }
+
+    </style>
     <section class="pb-5 header text-center">
         <header class="pb-4">
             <h1 class="display-4">All Responses</h1>
         </header>
+        <ul class="legend">
+          <li><span class="anger"></span>Anger</li>
+          <li><span class="sadness"></span> Sadness</li>
+          <li><span class="fear"></span> Fear</li>
+          <li><span class="disgust"></span>Disgust</li>
+          <li><span class="joy"></span>Joy</li>
+        </ul>
 
         <table id="data" class="table table-striped">
             <thead>

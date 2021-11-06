@@ -107,7 +107,6 @@ def delete_survey(survey_id, survey_folder):
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(
         Questions.lan_code == "en").all()
-    print(survey)
     rootDir = 'qdas/static/audioResponses'
     if request.method == "POST":
         stt.loopDirs(rootDir, survey_id)
@@ -130,6 +129,7 @@ def responses(survey_id):
     kws = nlu.getKeywordEmotion(survey_id)
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
         Responses.lan_code == "en").all()
+
     return render_template('responses.html', responses=responses, kws=kws)
 
 

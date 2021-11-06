@@ -80,13 +80,13 @@
      for (var i = 0; i < arrayLength; i++) {
          console.log(vals[i]);
          //Do something
-         children.push({value: vals[i]})
+         children.push({value: vals[i], fontColor: "#1976d2"})
      }
 
     var data = [
     ];
 
-    data.push({value:     val,
+    data.push({value:     val, fontColor: "#dd2c00",
            children: children
          })
     //let result = data.map(a => a.children);
@@ -117,7 +117,7 @@ function switchType() {
     for (var i = 0; i < arrayLength; i++) {
         console.log(vals[i]);
         //Do something
-        children.push({value: vals[i]})
+        children.push({value: vals[i], fontColor: "#1976d2"})
     }
 
    anychart.onDocumentReady(function () {
@@ -128,7 +128,7 @@ function switchType() {
      var data = [
      ];
 
-     data.push({value:     val,
+     data.push({value:     val, fontColor: "#dd2c00",
             children: children
           })
      //let result = data.map(a => a.children);
@@ -170,6 +170,16 @@ function switchType() {
 
 </script>
 
+<style media="screen">
+  /* basic positioning */
+  .legend { list-style: none; }
+  .legend li { float: right; margin-right: 10px; }
+  .legend span { border: 1px solid #ccc; float: left; width: 15px; height: 15px; margin: 2px; }
+  /* your colors */
+  .legend .entities { background-color: red; }
+  .legend .cents { background-color: blue; }
+</style>
+
 <div class="container">
   <div class="jumbotron">
     {% for k in survey %}
@@ -188,6 +198,10 @@ function switchType() {
           {% endif %}
         {% endfor %}
     </select>
+    <ul class="legend">
+      <li><span class="cents"></span>Corresponding Word(s)</li>
+      <li><span class="entities"></span>Entities</li>
+    </ul>
       <div id="word_tree" style="width: 1000px; height: 500px;"></div><br>
     {% endfor %}
     <h2 class="display-5">Relations found in responses</h2>

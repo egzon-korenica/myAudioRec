@@ -1,6 +1,6 @@
 import json
 import operator
-from ibm_watson import NaturalLanguageUnderstandingV1
+from ibm_watson import NaturalLanguageUnderstandingV1, ApiException
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions, RelationsOptions
 from qdas import db
@@ -30,24 +30,31 @@ def getKeywords(option, survey_id):
     decs = []
     for r in r_texts:
         if len(r) > 0 and option != "relation" and option != "entity":
-            response = natural_language_understanding.analyze(
-                text=r,
-                features=Features(
-                    keywords=KeywordsOptions(emotion=True, sentiment=False,
-                                             limit=50))).get_result()
+            try:
+                    # Invoke a method
+                response = natural_language_understanding.analyze(
+                    text=r,
+                    features=Features(
+                        keywords=KeywordsOptions(emotion=True, sentiment=False,
+                                                 limit=50))).get_result()
 
-            enc = json.dumps(response, indent=2)
-            dec = json.loads(enc)
-            decs.append(dec)
+                enc = json.dumps(response, indent=2)
+                dec = json.loads(enc)
+                decs.append(dec)
+            except ApiException as ex:
+                print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
         if len(r) > 0 and option == "relation" or option == "entity":
-            response = natural_language_understanding.analyze(
-                text=r,
-                    features=Features(relations=RelationsOptions())).get_result()
+            try:
+                response = natural_language_understanding.analyze(
+                    text=r,
+                        features=Features(relations=RelationsOptions())).get_result()
 
-            enc = json.dumps(response, indent=2)
-            dec = json.loads(enc)
-            decs.append(dec)
+                enc = json.dumps(response, indent=2)
+                dec = json.loads(enc)
+                decs.append(dec)
+            except ApiException as ex:
+                print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
     kws = []
     rels = []

@@ -10,6 +10,7 @@
         margin: 2px auto;
         z-index: 1100 !important;
     }
+    .collapse.in { display: inline !important; }
 </style>
 <section class="pb-5 header text-center">
     <header class="pb-4">
@@ -25,7 +26,16 @@
                     </h2>
 
                     {% for question in survey.questions %}
+                        {% if loop.index <= 3 %}
                         <p class="font-italic text-muted">{{ question }}</p>
+
+                        {% else %}
+                           <span class="collapse" id="more">
+                             <p class="font-italic text-muted">{{ question }}</p>
+                           </span>
+                           <span><a href="#more" data-toggle="collapse" style="color: blue; font-size: 20px;"> ... <i class="fa fa-caret-down"></i></a></span>
+                        {% endif %}
+
                     {% endfor %}
                 </div>
 

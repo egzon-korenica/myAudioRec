@@ -5,6 +5,16 @@
         {{ kws|safe }}
     </script>
     <style media="screen">
+
+      .modal-backdrop {
+          display: none;
+          z-index: 1040 !important;
+      }
+
+      .modal-content {
+          margin: 2px auto;
+          z-index: 1100 !important;
+      }
       /* basic positioning */
       .legend { list-style: none; }
       .legend li { float: right; margin-right: 10px; }
@@ -39,6 +49,7 @@
                       {% endfor %}
                   {% endif %}
               {% endfor %}
+              <th>Delete</th>
             </thead>
             <tbody>
             {% for r in responses %}
@@ -47,10 +58,38 @@
                     {% for res in r.Responses.responses %}
                         <td>{{ res }}</td>
                     {% endfor %}
+                    <td>
+                      <button class="btn" data-toggle="modal"
+                              data-target="#deleteModal{{ r.Responses.id }}"
+                              style="background: url('/static/img/delete.png') no-repeat; background-position: center; background-size: 28px 28px; height:35px; width:45px; background-color: #ffffff; border: solid 1px #d0d0d0"></button>
+                    </td>
                 </tr>
+
+                <!-- Modal -->
+                <div class="modal fade" id="deleteModal{{ r.Responses.id }}" tabindex="-1" role="dialog"
+                     aria-labelledby="deleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Delete Survey?</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                                <form action="{{ url_for('delete_response', survey_id = r.Responses.survey_id, r_id = r.Responses.id, participant_folder = r.Responses.participant_folder | replace('/', '-')) }}"
+                                      method="post">
+                                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <input type="submit" class="btn btn-danger" value="Delete">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
             </tbody>
         </table>
-
     </section>
 {% endblock content %}

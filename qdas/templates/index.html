@@ -31,8 +31,7 @@
     </script>
   </head>
   <body>
-    <h1 id="surveyTitle" class="text-center" style="font-size: 70px; margin-bottom: 3em;">{{ topic.topic }} </h1>
-    {% for question in questions %}
+    <h1 id="surveyTitle" class="text-center" style="font-size: 70px; margin-bottom: 1em;">{{ topic.topic }} </h1>
       <div id="container-{{loop.index}}" style="display: none;" class="text-center">
         <div style="border: solid 1px; padding: 30px; border-radius: 25px;">
           <p style="font-size: 30px;"><strong>{{ question }}</strong><img src="static/img/sound1.png" style="height:30px; width:30px; margin-left: 5px;" onclick="play({{ loop.index }})"></p>

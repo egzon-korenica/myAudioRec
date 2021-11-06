@@ -124,13 +124,25 @@ def survey(survey_id):
                            overall_data=overall_data)
 
 
-@app.route("/dashboard/survey/<int:survey_id>/responses")
+@app.route("/dashboard/survey/<int:survey_id>/responses",  methods=["GET"])
 def responses(survey_id):
     kws = nlu.getKeywordEmotion(survey_id)
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
         Responses.lan_code == "en").all()
 
     return render_template('responses.html', responses=responses, kws=kws)
+
+
+@app.route("/dashboard/survey/<int:survey_id>/responses/delete/<int:r_id>/<participant_folder>", methods=["POST"])
+def delete_response(survey_id, r_id, participant_folder):
+    response = Responses.query.get_or_404(r_id)
+    db.session.delete(response)
+    db.session.commit()
+    pfolder = participant_folder.replace("-", "/")
+    print(pfolder)
+    shutil.rmtree('qdas/static/audioResponses/' + pfolder, ignore_errors=True)
+    if request.method == 'POST':
+            return redirect(url_for('responses', survey_id = survey_id))
 
 
 @app.route("/dashboard/survey/<int:survey_id>/keywords")

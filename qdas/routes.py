@@ -124,7 +124,7 @@ def survey(survey_id):
                            overall_data=overall_data)
 
 
-@app.route("/dashboard/survey/<int:survey_id>/responses",  methods=["GET"])
+@app.route("/dashboard/survey/<int:survey_id>/responses", methods=["GET"])
 def responses(survey_id):
     kws = nlu.getKeywordEmotion(survey_id)
     responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
@@ -139,7 +139,7 @@ def delete_response(survey_id, r_id, participant_folder):
     db.session.delete(response)
     db.session.commit()
     pfolder = participant_folder.replace("-", "/")
-    print(pfolder)
+    querys.deleteRes(pfolder)
     shutil.rmtree('qdas/static/audioResponses/' + pfolder, ignore_errors=True)
     if request.method == 'POST':
             return redirect(url_for('responses', survey_id = survey_id))

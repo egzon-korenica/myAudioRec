@@ -88,11 +88,11 @@ function pauseRecording(index){
     if (rec.recording){
         //pause
         rec.stop();
-        document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('static/img/play.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
+        document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('/static/img/play.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
     }else{
         //resume
         rec.record()
-        document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
+        document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('/static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
 
     }
 }
@@ -108,7 +108,7 @@ function stopRecording(index) {
     document.getElementById("pauseButton_" + index).disabled = true
 
     //reset button just in case the recording is stopped while paused
-    document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
+    document.getElementById("pauseButton_" + index).setAttribute("style", "background: url('/static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;");
 
     //tell the recorder to stop the recording
     rec.stop();
@@ -164,7 +164,8 @@ function createDownloadLink(blob, index) {
         };
         var fd=new FormData();
         fd.append("audio_data",blob);
-        xhr.open("POST","/index",true);
+        xhr.open("POST",post_url,true);
+        console.log(post_url)
         xhr.setRequestHeader("x-csrf-token", mytoken)
         xhr.send(fd);
 

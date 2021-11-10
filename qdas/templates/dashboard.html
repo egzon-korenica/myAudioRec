@@ -44,7 +44,9 @@
                         <button class="btn float-right" data-toggle="modal"
                                 data-target="#deleteModal{{ survey.Survey.id }}"
                                 style="background: url('static/img/delete.png') no-repeat; background-position: center; background-size: 28px 28px; height:35px; width:45px; background-color: #ffffff; border: solid 1px #d0d0d0"></button>
-                    </p>
+                        <button class="btn float-left" onclick="Copy({{ survey.Survey.id }})"
+                                style="background: url('static/img/copy.png') no-repeat; background-position: center; background-size: 28px 28px; height:35px; width:45px; background-color: #ffffff; border: solid 1px #d0d0d0"></button>
+            </p>
                 </div>
             </div>
         </div>
@@ -87,5 +89,14 @@
     {% endif %}
 {% endfor %}
 
+<script type="text/javascript">
+  function Copy(snr)
+  {
+    url = window.location.host + "/" + snr
+    console.log(url)
+    navigator.clipboard.writeText(url);
+    alert("Link copied successfully")
+  }
+</script>
 
 {% endblock content %}

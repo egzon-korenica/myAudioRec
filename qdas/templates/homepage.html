@@ -42,7 +42,7 @@
 	<body>
 	  <div class='container'>
 			<h3>Choose survey language</h3>
-				<form action="{{ url_for('index') }}" method="GET">
+				<form action="{{ url_for('index', survey_id = survey_id) }}" method="GET">
 					<select name="language">
 						<option class="btn btn-default" value="en">English</option>
 						<option class="btn btn-default" value="es">Español</option>

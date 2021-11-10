@@ -31,7 +31,6 @@ def getKeywords(option, survey_id):
     for r in r_texts:
         if len(r) > 0 and option != "relation" and option != "entity":
             try:
-                    # Invoke a method
                 response = natural_language_understanding.analyze(
                     text=r,
                     features=Features(
@@ -69,11 +68,18 @@ def getKeywords(option, survey_id):
                 if option == "emotion" and keyword['relevance'] > 0.5 and (keyword['text'] not in kws):
                     kws.append(keyword['text'])
                     rels.append(max(keyword['emotion'].items(), key=operator.itemgetter(1))[0])
+
         if option == "relation":
             for relation in dec['relations']:
+                print(relation)
+                args = []
                 if len(relation) != 0 and relation['score'] > 0.5:
                     kws.append(relation['type'])
-                    rels.append(relation['sentence'])
+                    args.append(relation['sentence'])
+                    for arg in relation['arguments']:
+                        args.append(arg['text'])
+                    rels.append(args)
+
 
         if option == "entity":
             for relation in dec['relations']:

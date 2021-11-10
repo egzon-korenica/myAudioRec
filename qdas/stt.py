@@ -1,10 +1,13 @@
 import json
+import os
+import subprocess
+import shutil
 from ibm_watson import SpeechToTextV1
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from qdas import db, translation
 from qdas.models import Survey, Responses
-import os
-import subprocess
+
+
 
 APIKEY = "1njZRQgYAuB2NBFFj2azPrFYdP2mLcaQtcBdkSPUaFlC"
 URL = "https://api.eu-de.speech-to-text.watson.cloud.ibm.com/instances/9c3ec9fa-b798-44f6-9f3d-67f8406f20a0"
@@ -42,9 +45,13 @@ def convertToText(dir, survey_id):
 
     for filename in files:
         with open(dir + filename, 'rb') as f:
-            res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=True, model=models.get(lg),
-                                inactivity_timeout=300).get_result()
-            results.append(res)
+            try:
+                res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=True, model=models.get(lg),
+                                    inactivity_timeout=300).get_result()
+                results.append(res)
+            except ApiException as ex:
+                print("Method failed with status code " + str(ex.code) + ": " + ex.message)
+
 
     # print(results)
 
@@ -85,6 +92,9 @@ def loopDirs(rootdir, survey_id):
         print(audioDir)
         if os.sep.join(os.path.normpath(audioDir).split(os.sep)[-2:]) in folder_names:
             print("these responses have been converted")
+        elif len(os.listdir(audioDir)) == 0:
+            print("Directory is empty")
+            shutil.rmtree(audioDir)
         else:
             print("convert")
             convertToText(audioDir + '/', survey_id)

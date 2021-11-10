@@ -28,6 +28,7 @@
     </style>
     <script type="text/javascript">
       var mytoken = "{{ csrf_token() }}";
+      var post_url = "{{ post_url }}"
     </script>
   </head>
   <body>
@@ -35,19 +36,19 @@
     {% for question in questions %}
       <div id="container-{{loop.index}}" style="display: none;" class="text-center">
         <div style="border: solid 1px; padding: 30px; border-radius: 25px;">
-          <p style="font-size: 30px;"><strong>{{ question }}</strong><img src="static/img/sound1.png" style="height:30px; width:30px; margin-left: 5px;" onclick="play({{ loop.index }})"></p>
+          <p style="font-size: 30px;"><strong>{{ question }}</strong><img src="/static/img/sound1.png" style="height:30px; width:30px; margin-left: 5px;" onclick="play({{ loop.index }})"></p>
           <audio id="audio"></audio>
           <div id="controls">
             <div class="grouping">
-              <button id="recordButton_{{ loop.index }}" class="record" style="background: url('static/img/record.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+              <button id="recordButton_{{ loop.index }}" class="record" style="background: url('/static/img/record.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
               <p>Record</p>
             </div>
             <div class="grouping">
-              <button id="pauseButton_{{ loop.index }}" class="pause" disabled style="background: url('static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+              <button id="pauseButton_{{ loop.index }}" class="pause" disabled style="background: url('/static/img/pause.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
               <p>Pause</p>
             </div>
             <div class="grouping">
-              <button id="stopButton_{{ loop.index }}" class="stop" disabled style="background: url('static/img/stop.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
+              <button id="stopButton_{{ loop.index }}" class="stop" disabled style="background: url('/static/img/stop.png') no-repeat; background-position: center; background-size: 30px 30px; height:40px; width:70px;"></button>
               <p>Stop</p>
             </div>
           </div>
@@ -68,7 +69,7 @@
 
       // change audio ids
       for (var i=0, max=allAudio.length; i < max; i++) {
-        allAudio[i].setAttribute('src', '{{ dir }}' + lang + '0' + i.toString() + '.mp3');
+        allAudio[i].setAttribute('src', '/' + '{{ dir }}' + lang + '0' + i.toString() + '.mp3');
         allAudio[i].setAttribute('id', 'audio' + i.toString())
       }
       function play(idx) {

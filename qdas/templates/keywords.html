@@ -209,16 +209,18 @@ function switchType() {
         <thead>
           <th>Relation</th>
           <th>Sentence</th>
+          <th>Word 1</th>
+          <th>Word 2</th>
         </thead>
         <tbody>
         {% for key, value in rel_data.items() %}
             <tr>
                 <td>{{ key }}</td>
-                <td>
                 {% for v in value %}
-                  {{ v }}
+                  {% for w in v %}
+                    <td>{{ w }}</td>
+                  {% endfor %}
                 {% endfor %}
-                </td>
             </tr>
         {% endfor %}
         </tbody>

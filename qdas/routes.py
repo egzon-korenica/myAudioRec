@@ -10,29 +10,31 @@ from qdas.models import Questions, Survey, Responses
 from datetime import datetime
 
 
-@app.route("/")
-def home():
-    return render_template("homepage.html")
+@app.route("/<int:survey_id>")
+def home(survey_id):
+    return render_template("homepage.html", survey_id = survey_id)
 
 
-@app.route("/index", methods=['POST', 'GET'])
-def index():
-    # response.audioResponseDir()
+@app.route("/<int:survey_id>/index", methods=['POST', 'GET'])
+def index(survey_id):
     lang = request.args.get('language')
     questions = tts.read(lang)
-    currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-    topic = db.session.query(Questions.topic).filter(Questions.survey_id == currentSurvey.id,
+    post_url = request.path
+    topic = db.session.query(Questions.topic).filter(Questions.survey_id == survey_id,
                                                      Questions.lan_code == lang).first()
+
+    survey = Survey.query.get(survey_id)
+    sf = survey.survey_folder
 
     tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace(
         "qdas", ".")
     if request.method == "POST":
         lg = str(request.referrer)[-2:]
-        response.saveResponse(lg)
-        return render_template('index.html', request="POST", questions=questions, topic=topic, dir=tdir)
+        response.saveResponse(lg, sf)
+        return render_template('index.html', request="POST", questions=questions, topic=topic, dir=tdir, post_url=post_url)
     else:
-        response.audioResponseDir("audio")
-        return render_template("index.html", questions=questions, topic=topic, dir=tdir)
+        response.audioResponseDir(sf)
+        return render_template("index.html", questions=questions, topic=topic, dir=tdir, post_url=post_url)
 
 
 @app.route('/background_process_test')
@@ -77,7 +79,7 @@ def create_survey():
         questions_data = [v for (k, v) in form_data.items() if 'question' in k]
         survey_lang = translation.identifySurveyLang(questions_data[0])
         questions = Questions(lan_code=survey_lang, topic=form.topic.data, questions=questions_data)
-        response.audioResponseDir("survey")
+        response.surveyDir()
         sf = str(max(glob.glob(os.path.join('qdas/static/audioResponses/', '*/')), key=os.path.getmtime))[:-1]
         survey_folder = os.sep.join(os.path.normpath(sf).split(os.sep)[-1:])
         survey = Survey(question_ts=[questions], survey_folder=survey_folder)
@@ -152,7 +154,6 @@ def keywords(survey_id):
     k_data = nlu.getFrequentKeywords(survey_id)
     overall_data = nlu.getOverallKA(survey_id)
     rel_data = nlu.getRelations(survey_id)
-    print(rel_data)
     ent_data = nlu.getEntities(survey_id)
     entities_dict = {}
     for key, value in ent_data.items():

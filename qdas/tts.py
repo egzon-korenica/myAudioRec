@@ -54,9 +54,8 @@ def audioDir():
         i += 1
 
 
-def read(lcode):
-    currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-    surveyQuestions = db.session.query(Questions).filter(Questions.survey_id == currentSurvey.id,
+def read(lcode, survey_id):
+    surveyQuestions = db.session.query(Questions).filter(Questions.survey_id == survey_id,
                                                          Questions.lan_code == lcode).all()
     text = []
     for questions in surveyQuestions:
@@ -66,8 +65,8 @@ def read(lcode):
     return text
 
 
-def readQuestion(lcode, voice, dir):
-    text = read(lcode)
+def readQuestion(lcode, voice, dir, survey_id):
+    text = read(lcode, survey_id)
     ctr = 0
     for sentence in text:
         with open(dir + lcode + '{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
@@ -76,9 +75,9 @@ def readQuestion(lcode, voice, dir):
             ctr += 1
 
 
-def createAudioFiles(dir):
+def createAudioFiles(dir, survey_id):
     for key, value in voices.items():
-        readQuestion(key, value, dir)
+        readQuestion(key, value, dir, survey_id)
 
 
 if __name__ == "__main__":

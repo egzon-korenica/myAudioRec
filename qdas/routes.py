@@ -12,18 +12,20 @@ from datetime import datetime
 
 @app.route("/<int:survey_id>")
 def home(survey_id):
-    return render_template("homepage.html", survey_id = survey_id)
+    return render_template("homepage.html", survey_id=survey_id)
 
 
 @app.route("/<int:survey_id>/index", methods=['POST', 'GET'])
 def index(survey_id):
     lang = request.args.get('language')
-    questions = tts.read(lang)
+    questions = tts.read(lang, survey_id)
+    print(questions)
     post_url = request.path
     topic = db.session.query(Questions.topic).filter(Questions.survey_id == survey_id,
                                                      Questions.lan_code == lang).first()
 
     survey = Survey.query.get(survey_id)
+    print(survey)
     sf = survey.survey_folder
 
     tdir = (str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/").replace(
@@ -78,9 +80,11 @@ def create_survey():
     if form.validate_on_submit():
         questions_data = [v for (k, v) in form_data.items() if 'question' in k]
         survey_lang = translation.identifySurveyLang(questions_data[0])
-        questions = Questions(lan_code=survey_lang, topic=form.topic.data, questions=questions_data)
+        questions = Questions(lan_code=survey_lang,
+                              topic=form.topic.data, questions=questions_data)
         response.surveyDir()
-        sf = str(max(glob.glob(os.path.join('qdas/static/audioResponses/', '*/')), key=os.path.getmtime))[:-1]
+        sf = str(max(glob.glob(os.path.join(
+            'qdas/static/audioResponses/', '*/')), key=os.path.getmtime))[:-1]
         survey_folder = os.sep.join(os.path.normpath(sf).split(os.sep)[-1:])
         survey = Survey(question_ts=[questions], survey_folder=survey_folder)
         db.session.add(survey)
@@ -89,8 +93,10 @@ def create_survey():
         t_text = translation.translate(text)
         translation.addToDatabase(t_text, i)
         tts.audioDir()
-        TARGET_DIR = str(max(glob.glob(os.path.join('qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/"
-        tts.createAudioFiles(TARGET_DIR)
+        TARGET_DIR = str(max(glob.glob(os.path.join(
+            'qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/"
+        currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
+        tts.createAudioFiles(TARGET_DIR, currentSurvey.id)
         return redirect(url_for('dashboard'))
     return render_template("create_survey.html", form=form)
 
@@ -101,7 +107,8 @@ def delete_survey(survey_id, survey_folder):
     db.session.delete(survey)
     db.session.commit()
     shutil.rmtree('qdas/static/audios/' + survey_folder, ignore_errors=True)
-    shutil.rmtree('qdas/static/audioResponses/' + survey_folder, ignore_errors=True)
+    shutil.rmtree('qdas/static/audioResponses/' +
+                  survey_folder, ignore_errors=True)
     return redirect(url_for('dashboard'))
 
 
@@ -121,7 +128,7 @@ def survey(survey_id):
     overall_data = nlu.getOverallKA(survey_id)
     nr_participants = stt.nrOfAudioResponses(rootDir, survey_id)
     nr_convLeft = nr_participants - nr_responses
-    return render_template('survey.html', survey=survey, ta_data=ta_data, \
+    return render_template('survey.html', survey=survey, ta_data=ta_data,
                            k_data=k_data, nr_responses=nr_responses, nr_convLeft=nr_convLeft,
                            overall_data=overall_data)
 
@@ -129,10 +136,27 @@ def survey(survey_id):
 @app.route("/dashboard/survey/<int:survey_id>/responses", methods=["GET"])
 def responses(survey_id):
     kws = nlu.getKeywordEmotion(survey_id)
-    responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
-        Responses.lan_code == "en").all()
+    responses = db.session.query(Survey, Responses).join(
+        Responses).filter(Survey.id == survey_id).all()
 
-    return render_template('responses.html', responses=responses, kws=kws)
+    cleaned_responses = []
+
+    for r in responses:
+        resp = r.Responses.__dict__
+        folder_already_added = False
+        for alre_resp in cleaned_responses:
+            if alre_resp["folder"] == resp["participant_folder"]:
+                if alre_resp["lang"] == "en":
+                    alre_resp["lang"] = resp["lan_code"]
+                for i, respText in enumerate(resp["responses"]):
+                    alre_resp["responses"][i][resp["lan_code"]] = respText
+                folder_already_added = True
+                break
+        if not folder_already_added:
+            cleaned_responses.append(
+                {"sid": resp["survey_id"], "rid": resp["id"], "folder": resp["participant_folder"], "lang": resp["lan_code"], "responses": [{"index": i, resp['lan_code']: r} for i, r in enumerate(resp["responses"])]})
+
+    return render_template('responses.html', responses=cleaned_responses, kws=kws)
 
 
 @app.route("/dashboard/survey/<int:survey_id>/responses/delete/<int:r_id>/<participant_folder>", methods=["POST"])
@@ -144,7 +168,7 @@ def delete_response(survey_id, r_id, participant_folder):
     querys.deleteRes(pfolder)
     shutil.rmtree('qdas/static/audioResponses/' + pfolder, ignore_errors=True)
     if request.method == 'POST':
-            return redirect(url_for('responses', survey_id = survey_id))
+        return redirect(url_for('responses', survey_id=survey_id))
 
 
 @app.route("/dashboard/survey/<int:survey_id>/keywords")
@@ -156,11 +180,13 @@ def keywords(survey_id):
     rel_data = nlu.getRelations(survey_id)
     ent_data = nlu.getEntities(survey_id)
     entities_dict = {}
+    print(rel_data)
     for key, value in ent_data.items():
         entities_dict[key] = list(set(value))
 
-    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data,\
-     entities_dict=entities_dict, rel_data=rel_data)
+
+    return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data,
+                           entities_dict=entities_dict, rel_data=rel_data)
 
 
 if __name__ == "__main__":

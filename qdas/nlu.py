@@ -71,7 +71,6 @@ def getKeywords(option, survey_id):
 
         if option == "relation":
             for relation in dec['relations']:
-                print(relation)
                 args = []
                 if len(relation) != 0 and relation['score'] > 0.5:
                     kws.append(relation['type'])
@@ -131,7 +130,6 @@ def getOverallKA(survey_id):
 def getKeywordEmotion(survey_id):
     emotions_dict = getKeywords("emotion", survey_id)
     new_dict = {i: str(j[0]) for i, j in emotions_dict.items()}
-    print(new_dict)
     return new_dict
 
 def getRelations(survey_id):

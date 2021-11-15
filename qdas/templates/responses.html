@@ -1,8 +1,43 @@
 {% extends "layout.html" %}
 {% block content %}
     <script type="text/javascript">
-        var keywords =
-        {{ kws|safe }}
+        var keywords = {{ kws|safe }}
+        console.log(keywords)
+    </script>
+    <script>
+        var audio;
+        function changeLang(index){
+            let btn = document.getElementById("btn_"+ index);
+            let orgTxt = document.getElementById("org_"+ index);
+            let traTxt = document.getElementById("tra_"+ index);
+            if (btn.innerText == "Show original"){
+                btn.innerText = "Show translation";
+                orgTxt.style.display = "block";
+                traTxt.style.display = "none";
+            }else{
+                btn.innerText = "Show original";
+                orgTxt.style.display = "none";
+                traTxt.style.display = "block";
+            }
+        }
+
+        function playSound(src, index){
+            if (audio){
+                audio.pause();
+            }
+            if (document.getElementById("audioBtn_" + index).innerText == "Play sound"){
+                audio = new Audio(src);
+                audio.play();
+                let btns = document.getElementsByClassName('audioBtn');
+                for (let i = 0; i < btns.length; i++) {
+                    const btn = btns[i];
+                    btn.innerText = "Play sound";
+                }
+                document.getElementById("audioBtn_" + index).innerText = "Pause sound";
+            }else{
+                document.getElementById("audioBtn_" + index).innerText = "Play sound";
+            }
+        }
     </script>
     <style media="screen">
 
@@ -44,7 +79,7 @@
               <th>Participant</th>
               {% for r in responses %}
                   {% if loop.first %}
-                      {% for res in r.Responses.responses %}
+                      {% for res in r.responses %}
                           <th>Response {{ loop.index }}</th>
                       {% endfor %}
                   {% endif %}
@@ -55,18 +90,78 @@
             {% for r in responses %}
                 <tr>
                     <td>{{ loop.index }}</td>
-                    {% for res in r.Responses.responses %}
-                        <td>{{ res }}</td>
+                    {% for res in r.responses %}
+                        <td>
+                            <script>
+                                var scripts = document.getElementsByTagName( 'script' );
+                                var thisScriptTag = scripts[ scripts.length - 1 ];
+                                var mother = thisScriptTag.parentElement
+                                var lang = "{{ r.lang }}";
+                                var jsonText = '{{ res }}';
+                                while (jsonText.includes("&#34;")){
+                                    var parts = jsonText.split('&#34;');
+                                    jsonText = parts.shift();
+                                    while (parts[0].includes("&#39;")){
+                                        parts[0] = parts[0].replace("&#39;", "'")
+                                    }
+                                    jsonText += '"' + parts.shift() + '"';
+                                    jsonText += parts.join("&#34;");
+                                }
+                                while (jsonText.includes("&#39;")){
+                                    jsonText = jsonText.replace("&#39;", '"')
+                                }
+                                var data = JSON.parse(jsonText);
+                                if (lang == "en"){
+                                    let txt = document.createElement('p');
+                                    txt.innerText = data["en"];
+                                    mother.appendChild(txt);
+                                }else{
+                                    if (data["en"]){
+                                        let container = document.createElement('div');
+                                        let traTxt = document.createElement('p');
+                                        traTxt.id = "tra_" + scripts.length;
+                                        traTxt.innerText = data["en"];
+                                        container.appendChild(traTxt);
+                                        let orgTxt = document.createElement('p');
+                                        orgTxt.id = "org_" + scripts.length;
+                                        orgTxt.innerText = data[lang];
+                                        orgTxt.style.display = 'none';
+                                        container.appendChild(orgTxt);
+                                        let btn = document.createElement('a');
+                                        btn.id = "btn_" + scripts.length;
+                                        btn.href = "#!";
+                                        btn.innerText = "Show original";
+                                        btn.setAttribute("onclick", "changeLang(" + scripts.length + ")")
+                                        container.appendChild(btn);
+                                        mother.appendChild(container);
+                                    }else{
+                                        let orgTxt = document.createElement('p');
+                                        orgTxt.innerText = data[lang];
+                                        mother.appendChild(orgTxt);
+                                    }
+                                }
+                                if (true){
+                                    let audioBtn = document.createElement('a');
+                                    audioBtn.id = "audioBtn_" + scripts.length;
+                                    audioBtn.classList.add("audioBtn");
+                                    audioBtn.href = "#!";
+                                    audioBtn.innerText = "Play sound";
+                                    audioBtn.setAttribute("onclick", 'playSound("/static/audioResponses/{{ r.folder }}/audio0{{ res.index }}-{{ r.lang }}.wav", ' + scripts.length + ')');
+                                    mother.appendChild(audioBtn);
+                                }
+                            </script>
+                            <!-- <audio controls src="/static/audioResponses/{{ r.folder }}/audio0{{ res.index }}-{{ r.lang }}.wav"></audio>  -->
+                        </td>
                     {% endfor %}
                     <td>
                       <button class="btn" data-toggle="modal"
-                              data-target="#deleteModal{{ r.Responses.id }}"
+                              data-target="#deleteModal{{ r.rid }}"
                               style="background: url('/static/img/delete.png') no-repeat; background-position: center; background-size: 28px 28px; height:35px; width:45px; background-color: #ffffff; border: solid 1px #d0d0d0"></button>
                     </td>
                 </tr>
 
                 <!-- Modal -->
-                <div class="modal fade" id="deleteModal{{ r.Responses.id }}" tabindex="-1" role="dialog"
+                <div class="modal fade" id="deleteModal{{ r.rid }}" tabindex="-1" role="dialog"
                      aria-labelledby="deleteModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                         <div class="modal-content">
@@ -79,7 +174,7 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 
-                                <form action="{{ url_for('delete_response', survey_id = r.Responses.survey_id, r_id = r.Responses.id, participant_folder = r.Responses.participant_folder | replace('/', '-')) }}"
+                                <form action="{{ url_for('delete_response', survey_id = r.sid, r_id = r.rid, participant_folder = r.folder | replace('/', '-')) }}"
                                       method="post">
                                       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                                     <input type="submit" class="btn btn-danger" value="Delete">

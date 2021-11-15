@@ -62,7 +62,6 @@ def convertToText(dir, survey_id):
             record.append(result['alternatives'][0]['transcript'].rstrip())
         full_sentence = (" ".join(record))
         text.append(full_sentence)
-    print(f'text-->{text}')
     survey = db.session.query(Survey).order_by(Survey.id.desc()).get(survey_id)
     # if len(text) == nr_responses:
     responses = Responses(lan_code=lg, responses=text,
@@ -74,7 +73,6 @@ def convertToText(dir, survey_id):
     if lg != "en":
         # translate
         t_text = translation.translateResponse(text, lg)
-        print(t_text)
         translation.addResponseToDatabase(t_text, dir, survey_id)
 
 def loopDirs(rootdir, survey_id):

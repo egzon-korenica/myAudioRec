@@ -44,7 +44,6 @@
 
     data = {{ overall_data|safe }}
 
-
     // add a marker seris
     chart.bubble(data);
 
@@ -70,36 +69,39 @@
     var dropdown = document.getElementById("typeSelect");
     var val = dropdown.value;
 
-    console.log(ents)
-
     var vals = ents[val]
+    if (vals){
+           var arrayLength = vals.length;
+           children = []
 
-     var arrayLength = vals.length;
-     children = []
+           for (var i = 0; i < arrayLength; i++) {
+               console.log(vals[i]);
+               //Do something
+               children.push({value: vals[i], fontColor: "#1976d2"})
+           }
 
-     for (var i = 0; i < arrayLength; i++) {
-         console.log(vals[i]);
-         //Do something
-         children.push({value: vals[i], fontColor: "#1976d2"})
-     }
+          var data = [];
 
-    var data = [];
+          data.push({value: val, fontColor: "#dd2c00",
+                 children: children
+               })
+          //let result = data.map(a => a.children);
 
-    data.push({value: val, fontColor: "#dd2c00",
-           children: children
-         })
-    //let result = data.map(a => a.children);
+          var chart = anychart.wordtree(data, "as-tree");
 
-    var chart = anychart.wordtree(data, "as-tree");
+          // set the chart title
+          chart.title("Entities found in participant responses");
 
-    // set the chart title
-    chart.title("Entities found in participant responses");
+          // set the container id
+          chart.container("word_tree");
 
-    // set the container id
-    chart.container("word_tree");
+          // initiate drawing the chart
+          chart.draw();
 
-    // initiate drawing the chart
-    chart.draw();
+    }
+    else{
+      console.log("no values for")
+    }
 
 });
 
@@ -165,18 +167,17 @@ function switchType() {
 
  });
   }
-
 </script>
 
-<style media="screen">
-  /* basic positioning */
-  .legend { list-style: none; }
-  .legend li { float: right; margin-right: 10px; }
-  .legend span { border: 1px solid #ccc; float: left; width: 15px; height: 15px; margin: 2px; }
-  /* your colors */
-  .legend .entities { background-color: red; }
-  .legend .cents { background-color: blue; }
-</style>
+<script type="text/javascript">
+  function resizeTree() {
+  var tree = document.getElementById('relationsTree');
+  var ranger = document.getElementById('mySlider');
+  tree.style.transform = "scale(" + ranger.value + ") rotate(180deg)";
+  tree.style.transformOrigin = "50%"
+}
+</script>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='kws.css') }}">
 
 <div class="container">
   <div class="jumbotron">
@@ -203,28 +204,65 @@ function switchType() {
       <div id="word_tree" style="width: 1000px; height: 500px;"></div><br>
     {% endfor %}
     <h2 class="display-5">Relations found in responses</h2>
-    <table id="data" class="table table-striped">
-        <thead>
-          <th>Relation</th>
-          <th>Sentence</th>
-          <th>Word 1</th>
-          <th>Word 2</th>
-        </thead>
-        <tbody>
-        {% for key, value in rel_data.items() %}
-                {% for v in value %}
-                  <tr>
-                    <td>{{ key }}</td>
-                    {% for w in v %}
-                      <td>{{ w }}</td>
-                    {% endfor %}
-                  </tr>
-                {% endfor %}
-        {% endfor %}
-        </tbody>
-    </table>
+    <span>Zoom:</span><br>
+    <input id="mySlider" type="range" min="0.2" max="1.0" value="0.6" step="0.2" onchange="resizeTree();" style="width:500px;">
+      <div class="tree">
+        <ul id="relationsTree" style="transform: scale(0.6) rotate(180deg); transform-origin: 50%;">
+          <li>
+            <a href="#">Relations</a>
+            <ul class="relations">
+              {% for key, value in rel_data.items() %}
+                <li>
+                  <a href="#relation">{{ key }}</a>
+                  <ul class="words">
+                      {% for v in value %}
+                        {% for w in v %}
+                          {% if loop.index != 1 %}
+                          <li>
+                              <a href="#word">{{ w }}</a>
+                          </li>
+                          {% elif loop.index == 1%}
+                            <li class="sentence">{{ w }}</li>
+                          {% endif %}
+                        {% endfor %}
+                      {% endfor %}
+                  </ul>
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        </ul>
+      </div>
   </div>
 </div>
 
+<script type="text/javascript">
+  var slider = document.getElementById("mySlider")
+  var relul = document.getElementById("relationsTree")
+  {% if rel_data.items()|length % 2 == 0 %}
+    slider.value = 0.7;
+    slider.min = 0.3;
+    slider.max = 1.0
+    slider.step = 0.1
+    relul.setAttribute("style", "transform: scale(0.7) rotate(180deg); transform-origin: 50%;")
+  {% endif %}
 
+  var sentcs = document.querySelectorAll("ul.words li:nth-child(3n+1)")
+  var lsen = []
+  sentcs.forEach(item => lsen.push(item.innerHTML));
+  var lsen2 = lsen.reverse()
+  var words = document.querySelectorAll("ul.words li:nth-child(3n+2) a, ul.words li:nth-child(3n+3) a")
+
+  var stc;
+  for (var i=0; i < words.length; i++) {
+    if(i%2 == 0){
+      stc = lsen2.pop()
+      words[i].setAttribute("title", stc);
+    }
+    else{
+      words[i].setAttribute("title", stc);
+    }
+
+  }
+</script>
 {% endblock content %}

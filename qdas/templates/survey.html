@@ -81,10 +81,29 @@
             <div class="col">
                 <div class="jumbotron">
                     {% for k in survey %}
-                        <h2 class="display-4"><a class="article-title"
-                                                 href="{{ url_for('keywords', survey_id=k.Survey.id) }}">Keyword
-                            Analysis</a></h2>
-                        <p>Number of keywords for {{ nr_responses }} submitted responses: {{ k_data.keys()|length }}</p>
+                        <h2 class="display-5"><a class="article-title" href="{{ url_for('keywords', survey_id=k.Survey.id) }}">Keyword and Entities</a></h2>
+                        <p>
+                          This page contains data visualization for keywords, keyword frequency, keyword relevance and entities.
+                          <ul>
+                            <li>Tag Cloud</li>
+                            <li>Bubble Chart</li>
+                            <li>Word Tree</li>
+                          </ul>
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col">
+                <div class="jumbotron">
+                    {% for k in survey %}
+                        <h2 class="display-5"><a class="article-title" href="{{ url_for('concepts', survey_id=k.Survey.id) }}">Relations and Concepts</a></h2>
+                        <p>
+                          This page contains data visualization for relations and concepts found in interview responses.
+                          <ul>
+                            <li>Tree Diagram</li>
+                            <li>Concept Map</li>
+                          </ul>
+                        </p>
                     {% endfor %}
                 </div>
             </div>

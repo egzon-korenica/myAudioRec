@@ -2,7 +2,7 @@ import json
 import operator
 from ibm_watson import NaturalLanguageUnderstandingV1, ApiException
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
-from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions, RelationsOptions
+from ibm_watson.natural_language_understanding_v1 import Features, KeywordsOptions, EntitiesOptions, RelationsOptions, ConceptsOptions
 from qdas import db
 from qdas.models import Survey, Responses
 
@@ -29,7 +29,7 @@ def getKeywords(option, survey_id):
 
     decs = []
     for r in r_texts:
-        if len(r) > 0 and option != "relation" and option != "entity":
+        if len(r) > 0 and option != "relation" and option != "entity" and option != "concepts":
             try:
                 response = natural_language_understanding.analyze(
                     text=r,
@@ -55,12 +55,24 @@ def getKeywords(option, survey_id):
             except ApiException as ex:
                 print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
+        if len(r) > 0 and option == "concepts":
+            try:
+                response = natural_language_understanding.analyze(
+                    text=r,
+                    features=Features(concepts=ConceptsOptions(limit=3))).get_result()
+
+                enc = json.dumps(response, indent=2)
+                dec = json.loads(enc)
+                decs.append(dec)
+            except ApiException as ex:
+                print("Method failed with status code " + str(ex.code) + ": " + ex.message)
+
     kws = []
     rels = []
     key_dict = {}
 
     for dec in decs:
-        if option != "relation" and option != "entity":
+        if option != "relation" and option != "entity" and option != "concepts":
             for keyword in dec['keywords']:
                 if option == "frequency" and keyword['relevance'] > 0.5:
                     kws.append(keyword['text'])
@@ -81,12 +93,20 @@ def getKeywords(option, survey_id):
 
 
         if option == "entity":
+            print(dec)
             for relation in dec['relations']:
                 if len(relation) != 0 and relation['score'] > 0.5:
                     for arg in relation['arguments']:
                         for entity in arg['entities']:
                             kws.append(entity['type'])
                             rels.append(entity['text'])
+
+        if option == "concepts":
+            print(dec)
+            for concept in dec['concepts']:
+                if len(concept) != 0 and concept['relevance'] > 0.5:
+                    rels.append(concept['text'])
+                    kws.append(concept['relevance'])
 
     for value, line in zip(rels, kws):
         if line in key_dict:
@@ -139,6 +159,17 @@ def getRelations(survey_id):
 def getEntities(survey_id):
     entities_dict = getKeywords("entity", survey_id)
     return entities_dict
+
+def getConcepts(survey_id):
+    concepts_dict = getKeywords("concepts", survey_id)
+    c_list = []
+    for key, value in concepts_dict.items():
+        temp_list = []
+        temp_list.append(round(key, 3))
+        temp_list.append(value)
+        c_list.append(temp_list)
+    print(c_list)
+    return c_list
 
 if __name__ == "__main__":
     getKeywords()

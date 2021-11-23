@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 import shutil
-from ibm_watson import SpeechToTextV1
+from ibm_watson import SpeechToTextV1, ApiException
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from qdas import db, translation
 from qdas.models import Survey, Responses
@@ -10,7 +10,7 @@ from qdas.models import Survey, Responses
 
 
 APIKEY = "1njZRQgYAuB2NBFFj2azPrFYdP2mLcaQtcBdkSPUaFlC"
-URL = "https://api.eu-de.speech-to-text.watson.cloud.ibm.com/instances/9c3ec9fa-b798-44f6-9f3d-67f8406f20a0"
+URL = "https://api.eu-de.speech-to-text.watson.cloud.ibm.com/instances/9c3ec9fa-b798-44f6-9f3d-67f8406f20a0/"
 
 authenticator = IAMAuthenticator(APIKEY)
 stt = SpeechToTextV1(authenticator=authenticator)
@@ -42,6 +42,7 @@ def convertToText(dir, survey_id):
     #get language from filename
     fn_cut = files[0][:-4]
     lg = str(fn_cut[-2:])
+    print(lg)
 
     for filename in files:
         with open(dir + filename, 'rb') as f:
@@ -51,9 +52,6 @@ def convertToText(dir, survey_id):
                 results.append(res)
             except ApiException as ex:
                 print("Method failed with status code " + str(ex.code) + ": " + ex.message)
-
-
-    # print(results)
 
     text = []
     for file in results:
@@ -67,7 +65,6 @@ def convertToText(dir, survey_id):
     responses = Responses(lan_code=lg, responses=text,
                               participant_folder=os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
     survey.response_ts.append(responses)
-    print(survey.response_ts)
     db.session.commit()
 
     if lg != "en":

@@ -124,13 +124,12 @@ def survey(survey_id):
         Responses.lan_code == "en").count()
     print(nr_responses)
     ta_data = toneAnalysis.getToneAnalysisResults(survey_id)
-    k_data = nlu.getFrequentKeywords(survey_id)
-    overall_data = nlu.getOverallKA(survey_id)
+    #k_data = nlu.getFrequentKeywords(survey_id)
+    #overall_data = nlu.getOverallKA(survey_id)
     nr_participants = stt.nrOfAudioResponses(rootDir, survey_id)
     nr_convLeft = nr_participants - nr_responses
     return render_template('survey.html', survey=survey, ta_data=ta_data,
-                           k_data=k_data, nr_responses=nr_responses, nr_convLeft=nr_convLeft,
-                           overall_data=overall_data)
+                            nr_responses=nr_responses, nr_convLeft=nr_convLeft)
 
 
 @app.route("/dashboard/survey/<int:survey_id>/responses", methods=["GET"])
@@ -177,16 +176,22 @@ def keywords(survey_id):
         Questions.lan_code == "en").all()
     k_data = nlu.getFrequentKeywords(survey_id)
     overall_data = nlu.getOverallKA(survey_id)
-    rel_data = nlu.getRelations(survey_id)
     ent_data = nlu.getEntities(survey_id)
     entities_dict = {}
-    print(rel_data)
     for key, value in ent_data.items():
         entities_dict[key] = list(set(value))
 
 
     return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data,
-                           entities_dict=entities_dict, rel_data=rel_data)
+                           entities_dict=entities_dict)
+
+
+#changed
+@app.route("/dashboard/survey/<int:survey_id>/concepts")
+def concepts(survey_id):
+    c_data = nlu.getConcepts(survey_id)
+    rel_data = nlu.getRelations(survey_id)
+    return render_template('concepts.html', c_data = c_data, rel_data=rel_data)
 
 
 if __name__ == "__main__":

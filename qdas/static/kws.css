@@ -1,7 +1,7 @@
 /* basic positioning */
 .legend { list-style: none; }
 .legend li { float: right; margin-right: 10px; }
-.legend span { border: 1px solid #ccc; float: left; width: 15px; height: 15px; margin: 2px; }
+.legend span { border: 2px solid #ccc; float: left; width: 15px; height: 15px; margin: 2px; }
 /* your colors */
 .legend .entities { background-color: red; }
 .legend .cents { background-color: blue; }
@@ -45,14 +45,14 @@
  position: absolute;
  top: 0;
  right: 50%;
- border-top: 1px solid #ccc;
+ border-top: 2px solid #ccc;
  width: 50%;
  height: 1em;
 }
 .tree li::after {
  right: auto;
  left: 50%;
- border-left: 1px solid #ccc;
+ border-left: 2px solid #ccc;
 }
 .tree li:only-child::after, .tree li:only-child::before {
  display: none;
@@ -64,7 +64,7 @@
  border: 0 none;
 }
 .tree li:last-child::before {
- border-right: 1px solid #ccc;
+ border-right: 2px solid #ccc;
  border-radius: 0 5px 0 0;
 }
 .tree li:first-child::after {
@@ -75,31 +75,31 @@
  position: absolute;
  top: 0;
  left: 50%;
- border-left: 1px solid #ccc;
+ border-left: 2px solid #ccc;
  width: 0;
  height: 1em;
 }
 .tree li a {
- border: 1px solid #ccc;
+ border: 2px solid #ccc;
  padding: 0.5em 0.75em;
  text-decoration: none;
  display: inline-block;
  border-radius: 5px;
  color: #333;
  position: relative;
- top: 1px;
+ top: 2px;
  transform: rotate(180deg);
 }
 .tree li a:hover, .tree li a:hover + ul li a {
  background: #e9453f;
  color: #fff;
- border: 1px solid #e9453f;
+ border: 2px solid #e9453f;
 }
 .tree li a:hover + ul li::after, .tree li a:hover + ul li::before, .tree li a:hover + ul::before, .tree li a:hover + ul ul::before {
  border-color: #e9453f;
 }
 
-.tree li.sentence {
+.tree p.sentence {
   display:none;
 }
 .tree ul.words li:nth-child(2)::before{
@@ -110,7 +110,9 @@
   background-color: #457d54;
   color: white;
 }
-.tree ul.words li:nth-child(3n+2) a, .tree ul.words li:nth-child(3n+3) a{
-  background-color: #1976d2;
-  color: white;
+.tree li.word:nth-of-type(4n+1) a, .tree ul li.word:nth-of-type(4n+2) a{
+    background-color: #653970;
+}
+.tree li.word:nth-of-type(4n+3) a, .tree ul li.word:nth-of-type(4n+4) a{
+    background-color: #424aa1;
 }

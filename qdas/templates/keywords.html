@@ -218,11 +218,11 @@ function switchType() {
                       {% for v in value %}
                         {% for w in v %}
                           {% if loop.index != 1 %}
-                          <li>
+                          <li class="word">
                               <a href="#word">{{ w }}</a>
                           </li>
                           {% elif loop.index == 1%}
-                            <li class="sentence">{{ w }}</li>
+                            <p class="sentence">{{ w }}</p>
                           {% endif %}
                         {% endfor %}
                       {% endfor %}
@@ -247,7 +247,7 @@ function switchType() {
     relul.setAttribute("style", "transform: scale(0.7) rotate(180deg); transform-origin: 50%;")
   {% endif %}
 
-  var sentcs = document.querySelectorAll("ul.words li:nth-child(3n+1)")
+  var sentcs = document.querySelectorAll("ul.words p.sentence")
   var lsen = []
   sentcs.forEach(item => lsen.push(item.innerHTML));
   var lsen2 = lsen.reverse()

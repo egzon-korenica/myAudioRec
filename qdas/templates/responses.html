@@ -89,7 +89,7 @@
             <tbody>
             {% for r in responses %}
                 <tr>
-                    <td>{{ loop.index }}</td>
+                    <td style="vertical-align: middle; font-weight: bold;">{{ loop.index }}</td>
                     {% for res in r.responses %}
                         <td style="vertical-align: bottom;">
                             <script>
@@ -153,7 +153,7 @@
                             <!-- <audio controls src="/static/audioResponses/{{ r.folder }}/audio0{{ res.index }}-{{ r.lang }}.wav"></audio>  -->
                         </td>
                     {% endfor %}
-                    <td>
+                    <td style="vertical-align: middle;">
                       <button class="btn" data-toggle="modal"
                               data-target="#deleteModal{{ r.rid }}"
                               style="background: url('/static/img/delete.png') no-repeat; background-position: center; background-size: 28px 28px; height:35px; width:45px; background-color: #ffffff; border: solid 1px #d0d0d0"></button>

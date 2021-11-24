@@ -155,7 +155,7 @@ def responses(survey_id):
             cleaned_responses.append(
                 {"sid": resp["survey_id"], "rid": resp["id"], "folder": resp["participant_folder"], "lang": resp["lan_code"], "responses": [{"index": i, resp['lan_code']: r} for i, r in enumerate(resp["responses"])]})
 
-    return render_template('responses.html', responses=cleaned_responses, kws=kws)
+    return render_template('responses.html', responses=cleaned_responses, kws=kws, survey_id=survey_id)
 
 
 @app.route("/dashboard/survey/<int:survey_id>/responses/delete/<int:r_id>/<participant_folder>", methods=["POST"])
@@ -183,7 +183,7 @@ def keywords(survey_id):
 
 
     return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data,
-                           entities_dict=entities_dict)
+                           entities_dict=entities_dict, survey_id=survey_id)
 
 
 #changed
@@ -191,7 +191,7 @@ def keywords(survey_id):
 def concepts(survey_id):
     c_data = nlu.getConcepts(survey_id)
     rel_data = nlu.getRelations(survey_id)
-    return render_template('concepts.html', c_data = c_data, rel_data=rel_data)
+    return render_template('concepts.html', c_data = c_data, rel_data=rel_data, survey_id=survey_id)
 
 
 if __name__ == "__main__":

@@ -93,7 +93,6 @@ def getKeywords(option, survey_id):
 
 
         if option == "entity":
-            print(dec)
             for relation in dec['relations']:
                 if len(relation) != 0 and relation['score'] > 0.5:
                     for arg in relation['arguments']:
@@ -102,7 +101,6 @@ def getKeywords(option, survey_id):
                             rels.append(entity['text'])
 
         if option == "concepts":
-            print(dec)
             for concept in dec['concepts']:
                 if len(concept) != 0 and concept['relevance'] > 0.5:
                     rels.append(concept['text'])

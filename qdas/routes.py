@@ -3,11 +3,14 @@ import glob
 import sqlite3
 import json
 import shutil
+from random import randint
 from qdas import app, tts, translation, db, querys, response, stt, toneAnalysis, nlu
 from flask import request, render_template, url_for, redirect, jsonify
+from qdas import progress_elements
 from qdas.forms import SurveyForm
 from qdas.models import Questions, Survey, Responses
 from datetime import datetime
+from qdas.progress_elements import PROGRESSES, convert, create
 
 
 @app.route("/<int:survey_id>")
@@ -65,6 +68,14 @@ def dashboard():
     return render_template("dashboard.html", surveys=surveys)
 
 
+@app.route("/dashboard/create-survey/check/<int:checkerID>", methods=["GET"])
+def check_create_status(checkerID):
+    if checkerID not in PROGRESSES:
+        return("-1")
+    else:
+        return(f"{PROGRESSES[checkerID].step}")
+
+
 @app.route("/dashboard/create-survey", methods=["GET", "POST"])
 def create_survey():
     form = SurveyForm()
@@ -79,25 +90,13 @@ def create_survey():
         return render_template("create_survey.html", form=form)
     if form.validate_on_submit():
         questions_data = [v for (k, v) in form_data.items() if 'question' in k]
-        survey_lang = translation.identifySurveyLang(questions_data[0])
-        questions = Questions(lan_code=survey_lang,
-                              topic=form.topic.data, questions=questions_data)
-        response.surveyDir()
-        sf = str(max(glob.glob(os.path.join(
-            'qdas/static/audioResponses/', '*/')), key=os.path.getmtime))[:-1]
-        survey_folder = os.sep.join(os.path.normpath(sf).split(os.sep)[-1:])
-        survey = Survey(question_ts=[questions], survey_folder=survey_folder)
-        db.session.add(survey)
-        db.session.commit()
-        text = querys.rows()
-        t_text = translation.translate(text)
-        translation.addToDatabase(t_text, i)
-        tts.audioDir()
-        TARGET_DIR = str(max(glob.glob(os.path.join(
-            'qdas/static/audios', '*/')), key=os.path.getmtime))[:-1] + "/"
-        currentSurvey = db.session.query(Survey).order_by(Survey.id.desc()).first()
-        tts.createAudioFiles(TARGET_DIR, currentSurvey.id)
-        return redirect(url_for('dashboard'))
+        id = randint(0, 10000)
+        while id in PROGRESSES:
+            id = randint(0, 10000)
+        t = create(form.topic.data, questions_data, i, id)
+        PROGRESSES[id] = t
+        t.start()
+        return f"{id}"
     return render_template("create_survey.html", form=form)
 
 
@@ -112,14 +111,30 @@ def delete_survey(survey_id, survey_folder):
     return redirect(url_for('dashboard'))
 
 
-@app.route("/dashboard/survey/<int:survey_id>", methods=["POST", "GET"])
+@app.route("/dashboard/survey/<int:survey_id>/convert", methods=["POST"])
+def converSurvey(survey_id):
+    id = randint(0, 10000)
+    while id in PROGRESSES:
+        id = randint(0, 10000)
+    t = convert(survey_id, "qdas/static/audioResponses", id)
+    PROGRESSES[id] = t
+    t.start()
+    return(json.dumps({"id": id, "todos": t.steps}))
+
+
+@app.route("/progress/<int:progress_id>", methods=["GET"])
+def progress(progress_id):
+    if progress_id not in PROGRESSES:
+        return("-1")
+    else:
+        return(f"{PROGRESSES[progress_id].progress}")
+
+
+@app.route("/dashboard/survey/<int:survey_id>", methods=["GET"])
 def survey(survey_id):
     survey = db.session.query(Survey, Questions).join(Survey).filter(Survey.id == survey_id).filter(
         Questions.lan_code == "en").all()
     rootDir = 'qdas/static/audioResponses'
-    if request.method == "POST":
-        stt.loopDirs(rootDir, survey_id)
-        return redirect(url_for('survey', survey_id=survey_id))
     nr_responses = db.session.query(Survey, Responses).join(Responses).filter(Survey.id == survey_id).filter(
         Responses.lan_code == "en").count()
     print(nr_responses)
@@ -129,7 +144,7 @@ def survey(survey_id):
     nr_participants = stt.nrOfAudioResponses(rootDir, survey_id)
     nr_convLeft = nr_participants - nr_responses
     return render_template('survey.html', survey=survey, ta_data=ta_data,
-                            nr_responses=nr_responses, nr_convLeft=nr_convLeft)
+                           nr_responses=nr_responses, nr_convLeft=nr_convLeft)
 
 
 @app.route("/dashboard/survey/<int:survey_id>/responses", methods=["GET"])
@@ -181,17 +196,16 @@ def keywords(survey_id):
     for key, value in ent_data.items():
         entities_dict[key] = list(set(value))
 
-
     return render_template('keywords.html', survey=survey, k_data=k_data, overall_data=overall_data,
                            entities_dict=entities_dict, survey_id=survey_id)
 
 
-#changed
+# changed
 @app.route("/dashboard/survey/<int:survey_id>/concepts")
 def concepts(survey_id):
     c_data = nlu.getConcepts(survey_id)
     rel_data = nlu.getRelations(survey_id)
-    return render_template('concepts.html', c_data = c_data, rel_data=rel_data, survey_id=survey_id)
+    return render_template('concepts.html', c_data=c_data, rel_data=rel_data, survey_id=survey_id)
 
 
 if __name__ == "__main__":

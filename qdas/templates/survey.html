@@ -35,7 +35,57 @@
 
             $("text:contains(" + options.title + ")").attr({'x': '300', 'y': '60'})
         }
+        function convert(id){
+            var convertReq = new XMLHttpRequest();
+            convertReq.open( "POST", "/dashboard/survey/" + id + "/convert", false );
+            var d = new FormData();
+            d.append("csrf_token", "{{ csrf_token() }}")
+            convertReq.send(d);
+            var data = JSON.parse(convertReq.responseText);
+            var currentProgress = 0;
+            var progress = 0;
+            var times = 0;
+            function helper(){
+                if (times % 10 == 0){
+                    var update = new XMLHttpRequest();
+                    update.open( "GET", "/progress/" + data["id"], false );
+                    update.send(d);
+                    progress = update.responseText;
+                }
+                times += 1;
+                var maxProgess = (parseFloat(progress) + 1) / parseFloat(data["todos"]);
+                var minProgess = parseFloat(progress) / parseFloat(data["todos"]);
+                if (progress == "-1"){
+                    // FINISHED ACTION
+                    document.getElementById("progress").style.width = "100%";
+                    sessionStorage.setItem("CONVERTED", "TRUE");
+                    window.location.reload();
+                }else{
+                    document.getElementById("showProgress").style.display = "block";
+                    if (currentProgress < minProgess)
+                        currentProgress = minProgess;
+                    if (currentProgress < maxProgess)
+                        currentProgress += 0.001;
+                    document.getElementById("progress").style.width = (currentProgress * 100) + "%";
+                    setTimeout(helper, 100);
+                }
+            }
+            if (data["todos"] != "0"){
+                setTimeout(helper, 50);
+            }else{
+                alert("There is no data to convert!");
+            }
+        }
+        window.addEventListener("load", function(){
+            if (sessionStorage.getItem("CONVERTED") == "TRUE"){
+                sessionStorage.removeItem("CONVERTED");
+                document.getElementById("finishedLabel").style.display = "block";
+            }
+        });
     </script>
+    <div id="finishedLabel" style="display: none; width: 100%; background-color: green; text-align: center; color: white;">
+        Finished converting!
+    </div>
     <div class="container">
         <div class="row">
             <div class="col">
@@ -57,15 +107,11 @@
                         <p>Number of submitted responses: {{ nr_responses + nr_convLeft }}</p>
                         <p>Number of converted responses: {{ nr_responses }}</p>
                         <p>Number of conversions left: {{ nr_convLeft }}</p>
-                        <form class="generateResponse mt-3" action="{{ url_for('survey', survey_id=k.Survey.id) }}"
-                              method="post">
-                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <p>
-                                <button type="submit" class="btn btn-default border border-primary">Convert Responses to
-                                    Text
-                                </button>
-                            </p>
-                        </form>
+                        <p>
+                            <button type="button" class="btn btn-default border border-primary" onclick="convert({{ k.Survey.id }})">
+                                Convert Responses to Text
+                            </button>
+                        </p>
                     {% endfor %}
                 </div>
             </div>
@@ -107,6 +153,12 @@
                     {% endfor %}
                 </div>
             </div>
+        </div>
+    </div>
+    <div id="showProgress" style="display: none; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3);left: 0; top: 0; position: fixed;">
+        <div style="background-color: white; position: relative; width: 400px; height: 50px; margin-left: auto; margin-right: auto; top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
+            <p style="position: relative; top: -32px; height: 32px; color: white; width: 100%; text-align: center;">In Progress...</p>
+            <div id="progress" style="position: relative; left: 0;width: 0;background-color: green;height: 100%;">&nbsp;</div>
         </div>
     </div>
 {% endblock content %}

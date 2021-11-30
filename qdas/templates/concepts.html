@@ -15,37 +15,41 @@
 <div class="container">
   <p><a href="{{ url_for('survey', survey_id = survey_id)}}">&lt;&lt; Back</a></p>
   <div class="jumbotron">
-    <h2 class="display-4">Relations and Concepts</h2>
+    <h2 class="display-4">Relations and Concepts</h2><br>
     <h2 class="display-5">Relations found in responses</h2>
     <span>Zoom:</span><br>
     <input id="mySlider" type="range" min="0.2" max="1.0" value="0.6" step="0.2" onchange="resizeTree();" style="width:500px;">
       <div class="tree">
         <ul id="relationsTree" style="transform: scale(0.6) rotate(180deg); transform-origin: 50%;">
-          <li>
-            <a href="#">Relations</a>
-            <ul class="relations">
-              {% for key, value in rel_data.items() %}
-                <li>
-                  <a href="#relation">{{ key }}</a>
-                  <ul class="words">
-                      {% for v in value %}
-                        {% for w in v %}
-                          {% if loop.index != 1 %}
-                          <li class="word">
-                              <a href="#word">{{ w }}</a>
-                          </li>
-                          {% elif loop.index == 1%}
-                            <p class="sentence">{{ w }}</p>
-                          {% endif %}
+          {% if rel_data.items()|length > 0%}
+            <li>
+              <a href="#">Relations</a>
+              <ul class="relations">
+                {% for key, value in rel_data.items() %}
+                  <li>
+                    <a href="#relation">{{ key }}</a>
+                    <ul class="words">
+                        {% for v in value %}
+                          {% for w in v %}
+                            {% if loop.index != 1 %}
+                            <li class="word">
+                                <a href="#word">{{ w }}</a>
+                            </li>
+                            {% elif loop.index == 1%}
+                              <p class="sentence">{{ w }}</p>
+                            {% endif %}
+                          {% endfor %}
                         {% endfor %}
-                      {% endfor %}
-                  </ul>
-                </li>
-              {% endfor %}
-            </ul>
-          </li>
+                    </ul>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% else %}
+            <p style="transform: rotate(180deg); font-size:30px;">No relations found yet</p>
+          {% endif %}
         </ul>
-      </div>
+      </div><br>
       <h2 class="display-5">Concepts found in responses</h2>
       <div class="chart" id="conceptMap"></div>
   </div>

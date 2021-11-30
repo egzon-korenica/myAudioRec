@@ -12,6 +12,17 @@
     }
     .collapse.in { display: inline !important; }
 </style>
+<script>
+    window.addEventListener("load", function(){
+        if (sessionStorage.getItem("CONVERTED") == "TRUE"){
+            sessionStorage.removeItem("CONVERTED");
+            document.getElementById("finishedLabel").style.display = "block";
+        }
+    });
+</script>
+<div id="finishedLabel" style="display: none; width: 100%; background-color: green; text-align: center; color: white;">
+    Finished creating survey!
+</div>
 <section class="pb-5 header text-center">
     <header class="pb-4">
         <h1 class="display-4">All Surveys</h1>

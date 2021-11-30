@@ -1,7 +1,51 @@
 {% extends "layout.html" %}
 {% block content %}
+    <script>
+        function sub(){
+            let inputs = document.getElementsByClassName("form-control");
+            for (let i = 0; i < inputs.length; i++) {
+                const input = inputs[i];
+                if (input.value.trim()==""){
+                    alert("You need to fill all fields!")
+                    return;
+                }
+            }
+            var createReq = new XMLHttpRequest();
+            createReq.open( "POST", "/dashboard/create-survey", false );
+            var d = new FormData(document.getElementById("survey"));
+            createReq.send(d);
+            var createID = createReq.responseText;
+            var times = "0",
+                progress = 0,
+                currentProgress = 0;
+            function helper(){
+                if (times % 10 == 0){
+                    var update = new XMLHttpRequest();    
+                    update.open( "GET", "/dashboard/create-survey/check/" + createID, false );
+                    update.send(d);
+                    progress = update.responseText;
+                }
+                if (progress == "-1"){
+                    // FINISHED ACTION
+                    sessionStorage.setItem("CONVERTED", "TRUE");
+                    window.location = "/dashboard"
+                }else{
+                    document.getElementById("showProgress").style.display = "block";
+                    var maxProgess = (parseFloat(progress) + 1) / 15;
+                    var minProgess = parseFloat(progress) / 15;
+                    if (currentProgress < minProgess)
+                        currentProgress = minProgess;
+                    if (currentProgress < maxProgess)
+                        currentProgress += 0.001;
+                    document.getElementById("progress").style.width = (currentProgress * 100) + "%";
+                    setTimeout(helper, 100);
+                }
+            }
+            setTimeout(helper, 50);
+        }
+    </script>
     <h2 class="mt-5">Create Survey</h2>
-    <form class="createSurvey mt-3" action="{{ url_for('create_survey') }}" method="post">
+    <form id="survey" class="createSurvey mt-3" action="{{ url_for('create_survey') }}" method="post">
         {{ form.hidden_tag() }}
         <div class="field_wrapper">
             {% if form.errors %}
@@ -21,8 +65,13 @@
             {{ form.add_q(class="btn btn-default border border-success") }}
         </p>
         <p>
-            {{ form.submit(class="btn btn-default border border-primary") }}
+            <input type="button" value="Submit" onclick="sub()">
         </p>
     </form>
-
+    <div id="showProgress" style="display: none; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3);left: 0; top: 0; position: fixed;">
+        <div style="background-color: white; position: relative; width: 400px; height: 50px; margin-left: auto; margin-right: auto; top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
+            <p style="position: relative; top: -32px; height: 32px; color: white; width: 100%; text-align: center;">In Progress...</p>
+            <div id="progress" style="position: relative; left: 0;width: 0;background-color: green;height: 100%;">&nbsp;</div>
+        </div>
+    </div>
 {% endblock content %}

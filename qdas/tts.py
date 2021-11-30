@@ -23,22 +23,18 @@ tts = TextToSpeechV1(authenticator=authenticator)
 # set service url
 tts.set_service_url(url)
 
-# voices = ['ar-AR_OmarVoice', 'de-DE_BirgitV3Voice', 'en-GB_KateV3Voice', 'es-ES_EnriqueV3Voice', 'fr-CA_LouiseV3Voice',\
-# 'it-IT_FrancescaV3Voice', 'ja-JP_EmiV3Voice', 'ko-KR_SiWooVoice', 'nl-NL_EmmaVoice', 'pt-BR_IsabelaV3Voice', 'h-CN_ZhangJingVoice']
-
 voices = {
-    #"ar": "ar-AR_OmarVoice",
+    "ar": "ar-AR_OmarVoice",
     "de": "de-DE_BirgitV3Voice",
     "en": "en-GB_KateV3Voice",
-    #"es": "es-ES_EnriqueV3Voice",
-    #"fr": "fr-CA_LouiseV3Voice"
-    # "it": "Mustang",
-    # "ja": "Mustang",
-    # "ko": "Mustang",
-    # "nl": "Mustang",
-    # "pt": "Mustang",
-    # "de": "Mustang",
-    # "zh": "Mustang"
+    "es": "es-ES_EnriqueV3Voice",
+    "fr": "fr-CA_LouiseV3Voice"
+    "it": "it-IT_FrancescaV3Voice",
+    # "ja": "ja-JP_EmiV3Voice",
+    # "ko": "ko-KR_HyunjunVoice",
+    # "nl": "nl-BE_AdeleVoice",
+    # "pt": "pt-BR_IsabelaV3Voice",
+    # "zh": "zh-CN_LiNaVoice"
 }
 
 # create interview folder

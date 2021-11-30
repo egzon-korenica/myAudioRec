@@ -20,15 +20,15 @@ stt.set_service_url(URL)
 models = {
     "ar": "ar-MS_Telephony",
     "de": "de-DE_Telephony",
-    "en": "en-US_Multimedia"
+    "en": "en-US_Multimedia",
     "es": "es-ES_Telephony",
-    #"fr": "fr-FR_Multimedia"
-    # "it": "it-IT_Telephony",
-    # "ja": "ja-JP_Multimedia",
-    # "ko": "ko-KR_Multimedia",
-    # "nl": "nl-NL_Telephony",
-    # "pt": "pt-BR_Telephony",
-    # "zh": "zh-CN_Telephony"
+    "fr": "fr-FR_Multimedia",
+    "it": "it-IT_Telephony",
+    "ja": "ja-JP_Multimedia",
+    "ko": "ko-KR_Multimedia",
+    "nl": "nl-NL_Telephony",
+    "pt": "pt-BR_Telephony",
+    "zh": "zh-CN_Telephony"
 }
 
 def convertToText(dir, survey_id):

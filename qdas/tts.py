@@ -28,8 +28,8 @@ voices = {
     "de": "de-DE_BirgitV3Voice",
     "en": "en-GB_KateV3Voice",
     "es": "es-ES_EnriqueV3Voice",
-    "fr": "fr-CA_LouiseV3Voice"
-    "it": "it-IT_FrancescaV3Voice",
+    "fr": "fr-CA_LouiseV3Voice",
+    "it": "it-IT_FrancescaV3Voice"
     # "ja": "ja-JP_EmiV3Voice",
     # "ko": "ko-KR_HyunjunVoice",
     # "nl": "nl-BE_AdeleVoice",

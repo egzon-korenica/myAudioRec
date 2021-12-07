@@ -54,7 +54,7 @@ def translate():
     translation.translate()
     return ("nothing")
 
-
+@app.route("/", methods=["GET", "POST"])
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     page = request.args.get('page', 1, type=int)

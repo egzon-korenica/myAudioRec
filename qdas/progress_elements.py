@@ -72,6 +72,7 @@ class convert(Thread):
             survey = db.session.query(Survey).order_by(
                 Survey.id.desc()).get(survey_id)
             # if len(text) == nr_responses:
+            print(text)
             responses = Responses(lan_code=lg, responses=text,
                                   participant_folder=os.sep.join(os.path.normpath(dir).split(os.sep)[-2:]))
             survey.response_ts.append(responses)
@@ -79,6 +80,7 @@ class convert(Thread):
 
             if lg != "en":
                 # translate
+                print(lg)
                 t_text = translation.translateResponse(text, lg)
                 self.progress += len(files)
                 translation.addResponseToDatabase(t_text, dir, survey_id)

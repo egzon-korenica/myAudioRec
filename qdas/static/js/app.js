@@ -177,7 +177,7 @@ function createDownloadLink(blob, index) {
             // handle effects here
             console.log("LAST QUESTION ANSWERED")
             var title = document.getElementById("surveyTitle")
-            title.innerHTML = "Thank you for participating"
+            title.innerHTML = "Thank you for participating <p style='margin-top: 3em; font-size:20px; text-decoration: underline;'><a href='https://www.google.com/'>Go to homepage</a></p>"
             //document.body.style.background = #c7f2d2;
         }
     })

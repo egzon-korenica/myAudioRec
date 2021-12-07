@@ -13,7 +13,7 @@ authenticator = IAMAuthenticator(apikey)
 lt = LanguageTranslatorV3(version='2018-05-01', authenticator=authenticator)
 lt.set_service_url(url)
 
-lang_codes = ['ar', 'zh', 'nl', 'fr', 'de', 'it', 'ja', 'ko', 'pt', 'es']
+lang_codes = ['ar', 'zh', 'nl', 'fr', 'de', 'it', 'ja', 'ko', 'pt', 'es', 'cs']
 
 
 # read from file

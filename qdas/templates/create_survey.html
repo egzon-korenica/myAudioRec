@@ -20,7 +20,7 @@
                 currentProgress = 0;
             function helper(){
                 if (times % 10 == 0){
-                    var update = new XMLHttpRequest();    
+                    var update = new XMLHttpRequest();
                     update.open( "GET", "/dashboard/create-survey/check/" + createID, false );
                     update.send(d);
                     progress = update.responseText;
@@ -28,7 +28,7 @@
                 if (progress == "-1"){
                     // FINISHED ACTION
                     sessionStorage.setItem("CONVERTED", "TRUE");
-                    window.location = "/dashboard"
+                    window.location = "/dashboard?created=" + (new Date()).getTime();
                 }else{
                     document.getElementById("showProgress").style.display = "block";
                     var maxProgess = (parseFloat(progress) + 1) / 15;
@@ -65,7 +65,7 @@
             {{ form.add_q(class="btn btn-default border border-success") }}
         </p>
         <p>
-            <input type="button" value="Submit" onclick="sub()">
+            <input type="button" class="btn btn-default border border-primary" value="Generate survey" onclick="sub()">
         </p>
     </form>
     <div id="showProgress" style="display: none; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3);left: 0; top: 0; position: fixed;">

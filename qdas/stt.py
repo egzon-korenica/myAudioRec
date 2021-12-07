@@ -28,7 +28,8 @@ models = {
     "ko": "ko-KR_Multimedia",
     "nl": "nl-NL_Telephony",
     "pt": "pt-BR_Telephony",
-    "zh": "zh-CN_Telephony"
+    "zh": "zh-CN_Telephony",
+    "cs": "cz-CZ_Telephony",
 }
 
 def convertToText(dir, survey_id):
@@ -47,6 +48,7 @@ def convertToText(dir, survey_id):
     for filename in files:
         with open(dir + filename, 'rb') as f:
             try:
+                print(models.get("ko"))
                 res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=True, model=models.get(lg),
                                     inactivity_timeout=300).get_result()
                 results.append(res)

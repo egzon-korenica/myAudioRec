@@ -29,9 +29,10 @@ voices = {
     "en": "en-GB_KateV3Voice",
     "es": "es-ES_EnriqueV3Voice",
     "fr": "fr-CA_LouiseV3Voice",
-    "it": "it-IT_FrancescaV3Voice"
-    # "ja": "ja-JP_EmiV3Voice",
-    # "ko": "ko-KR_HyunjunVoice",
+    "it": "it-IT_FrancescaV3Voice",
+    "cs": "cs-CZ_AlenaVoice",
+    "ja": "ja-JP_EmiV3Voice",
+    "ko": "ko-KR_HyunjunVoice",
     # "nl": "nl-BE_AdeleVoice",
     # "pt": "pt-BR_IsabelaV3Voice",
     # "zh": "zh-CN_LiNaVoice"
@@ -64,6 +65,7 @@ def read(lcode, survey_id):
 def readQuestion(lcode, voice, dir, survey_id):
     text = read(lcode, survey_id)
     ctr = 0
+    print(voice + "readQuestion")
     for sentence in text:
         with open(dir + lcode + '{ctr:02d}.mp3'.format(ctr=ctr), 'wb') as audio_file:
             res = tts.synthesize(sentence, accept='audio/mp3', voice=voice).get_result()
@@ -73,6 +75,7 @@ def readQuestion(lcode, voice, dir, survey_id):
 
 def createAudioFiles(dir, survey_id):
     for key, value in voices.items():
+        print(key, value)
         readQuestion(key, value, dir, survey_id)
 
 

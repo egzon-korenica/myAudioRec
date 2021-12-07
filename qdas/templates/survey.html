@@ -59,7 +59,7 @@
                     // FINISHED ACTION
                     document.getElementById("progress").style.width = "100%";
                     sessionStorage.setItem("CONVERTED", "TRUE");
-                    window.location.reload(true);
+                    window.location.reload();
                 }else{
                     document.getElementById("showProgress").style.display = "block";
                     if (currentProgress < minProgess)

@@ -6,6 +6,7 @@ from ibm_watson import SpeechToTextV1, ApiException
 from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
 from qdas import db, translation
 from qdas.models import Survey, Responses
+from ibm_watson.websocket import RecognizeCallback, AudioSource
 
 
 
@@ -16,14 +17,15 @@ authenticator = IAMAuthenticator(APIKEY)
 stt = SpeechToTextV1(authenticator=authenticator)
 stt.set_service_url(URL)
 
-# 
+results = []
 
-with open('qdas/static/audioResponses/survey_006/audio_00002/audio00-cs.wav', 'rb') as f:
+with open('qdas/static/audioResponses/survey_006/audio_00001/audio00-cs.wav', 'rb') as f:
             try:
-                res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=False, model="cz-CZ_Telephony",
+                res = stt.recognize(audio=f, content_type='audio/wav', smart_formatting=False, model="cs-CZ_Telephony",
                                     inactivity_timeout=300).get_result()
                 results.append(res)
             except ApiException as ex:
                 print("Method failed with status code " + str(ex.code) + ": " + ex.message)
 
 
+print(results)

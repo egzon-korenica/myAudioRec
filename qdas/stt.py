@@ -29,7 +29,7 @@ models = {
     "nl": "nl-NL_Telephony",
     "pt": "pt-BR_Telephony",
     "zh": "zh-CN_Telephony",
-    "cs": "cz-CZ_Telephony",
+    "cs": "cs-CZ_Telephony",
 }
 
 def convertToText(dir, survey_id):
